@@ -1,0 +1,123 @@
+default_platform(:android)
+
+# Firebase App IDs (based on google-services.json)
+FIREBASE_APP_ID_DEBUG   = "1:830710618092:android:64c64817b86c952bc2d2c9"
+FIREBASE_APP_ID_RELEASE = "1:830710618092:android:d3d8bbc11d633bf5c2d2c9"
+PACKAGE_NAME            = "org.goodexpert.ridefit"
+
+platform :android do
+
+  # ── Build & Test ──────────────────────────────────────────────────────────
+
+  desc "Lint (detekt) + Unit tests"
+  lane :test do
+    gradle(task: "detekt")
+    gradle(task: "testDebugUnitTest")
+  end
+
+  desc "Update Roborazzi snapshots"
+  lane :screenshots do
+    gradle(
+      task: "testDebugUnitTest",
+      properties: { "roborazzi.test.record" => true },
+    )
+  end
+
+  # ── Firebase App Distribution ──────────────────────────────────────────────
+
+  desc "Debug APK → Firebase App Distribution (QA team)"
+  lane :distribute_debug do
+    notes = build_release_notes
+    gradle(task: "assembleDebug")
+    firebase_app_distribution(
+      app:                      FIREBASE_APP_ID_DEBUG,
+      apk_path:                 "app/build/outputs/apk/debug/app-debug.apk",
+      groups:                   ENV.fetch("FIREBASE_TESTER_GROUPS", "qa-team"),
+      release_notes:            notes,
+      service_credentials_file: ENV["FIREBASE_SERVICE_ACCOUNT_JSON_PATH"],
+    )
+  end
+
+  desc "Release APK → Firebase App Distribution (Beta testers)"
+  lane :distribute_beta do
+    notes = build_release_notes
+    gradle(task: "assembleRelease")
+    firebase_app_distribution(
+      app:                      FIREBASE_APP_ID_RELEASE,
+      apk_path:                 "app/build/outputs/apk/release/app-release.apk",
+      groups:                   ENV.fetch("FIREBASE_TESTER_GROUPS", "beta-testers"),
+      release_notes:            notes,
+      service_credentials_file: ENV["FIREBASE_SERVICE_ACCOUNT_JSON_PATH"],
+    )
+  end
+
+  # ── Google Play ────────────────────────────────────────────────────────────
+
+  desc "Release AAB → Google Play internal track"
+  lane :deploy_internal do
+    bump_version_code
+    gradle(task: "bundleRelease")
+    upload_to_play_store(
+      track:                   "internal",
+      aab:                     "app/build/outputs/bundle/release/app-release.aab",
+      json_key:                ENV["GOOGLE_PLAY_JSON_KEY_PATH"],
+      package_name:            PACKAGE_NAME,
+      skip_upload_metadata:    true,
+      skip_upload_images:      true,
+      skip_upload_screenshots: true,
+    )
+  end
+
+  desc "Promote Google Play internal → production (10% rollout)"
+  lane :deploy_production do
+    upload_to_play_store(
+      track:            "internal",
+      track_promote_to: "production",
+      rollout:          "0.1",
+      json_key:         ENV["GOOGLE_PLAY_JSON_KEY_PATH"],
+      package_name:     PACKAGE_NAME,
+    )
+  end
+
+  # ── CI Pipeline ───────────────────────────────────────────────────────────
+
+  desc "CI: Test → Firebase beta distribution"
+  lane :ci_beta do
+    test
+    distribute_beta
+  end
+
+  desc "CI: Test → Google Play internal distribution"
+  lane :ci_release do
+    test
+    deploy_internal
+  end
+
+  # ── Private helpers ────────────────────────────────────────────────────────
+
+  private_lane :bump_version_code do
+    path    = "app/build.gradle.kts"
+    content = File.read(path)
+    current = content[/versionCode\s*=\s*(\d+)/, 1].to_i
+    File.write(path, content.sub(/versionCode\s*=\s*\d+/, "versionCode = #{current + 1}"))
+    UI.success("versionCode: #{current} → #{current + 1}")
+  end
+
+  private_lane :build_release_notes do
+    notes = "Initial release"
+    begin
+      last_tag = sh("git describe --tags --abbrev=0 2>/dev/null || echo ''", log: false).strip
+      notes = if last_tag.empty?
+                sh("git log --oneline --no-merges -10 2>/dev/null", log: false)
+              else
+                sh("git log #{last_tag}..HEAD --oneline --no-merges 2>/dev/null", log: false)
+              end
+      notes = notes.strip
+      notes = "Update" if notes.empty?
+    rescue
+      UI.important("Git command failed (likely no commits yet). Using default release notes.")
+    end
+    notes[0, 500]
+  end
+
+end

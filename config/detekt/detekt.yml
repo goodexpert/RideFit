@@ -1,0 +1,209 @@
+build:
+  maxIssues: 0
+
+config:
+  # false required so third-party rule sets (formatting, Compose) are not rejected
+  validation: false
+  warningsAsErrors: false
+
+# ── Complexity ────────────────────────────────────────────────────────────────
+
+complexity:
+  LongMethod:
+    active: true
+    threshold: 60
+    ignoreAnnotated: ['Composable', 'Preview']
+  LongParameterList:
+    active: true
+    functionThreshold: 8
+    constructorThreshold: 8
+    ignoreDefaultParameters: false
+    ignoreDataClasses: true
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 20
+    thresholdInClasses: 15
+    thresholdInInterfaces: 10
+    thresholdInObjects: 15
+    thresholdInEnums: 5
+    ignorePrivate: true
+    ignoreAnnotatedFunctions: ['Composable', 'Preview']
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 15
+    ignoreSingleWhenExpression: true
+
+# ── Formatting (ktlint) ───────────────────────────────────────────────────────
+
+formatting:
+  active: true
+  android: true
+  autoCorrect: true
+  MaximumLineLength:
+    active: true
+    maxLineLength: 140
+  Indentation:
+    active: true
+    autoCorrect: true
+    indentSize: 4
+  ImportOrdering:
+    active: true
+    autoCorrect: true
+  Filename:
+    # Project groups related declarations in named files (e.g. RideModel.kt, Theme.kt)
+    active: false
+  NoMultipleSpaces:
+    # Aligned when-expressions and variable declarations are accepted in this project
+    active: false
+  NoWildcardImports:
+    active: true
+    packagesToUseImportOnDemandProperty: ''
+  TrailingCommaOnCallSite:
+    active: true
+    autoCorrect: true
+    useTrailingCommaOnCallSite: true
+  TrailingCommaOnDeclarationSite:
+    active: true
+    autoCorrect: true
+    useTrailingCommaOnDeclarationSite: true
+  FinalNewline:
+    active: true
+    autoCorrect: true
+    insertFinalNewline: true
+  NoConsecutiveBlankLines:
+    active: true
+    autoCorrect: true
+  NoTrailingSpaces:
+    active: true
+    autoCorrect: true
+  NoUnusedImports:
+    active: true
+    autoCorrect: true
+  SpacingAroundColon:
+    active: true
+    autoCorrect: true
+  SpacingAroundComma:
+    active: true
+    autoCorrect: true
+  SpacingAroundKeyword:
+    active: true
+    autoCorrect: true
+  SpacingAroundOperators:
+    active: true
+    autoCorrect: true
+
+# ── Naming ────────────────────────────────────────────────────────────────────
+
+naming:
+  FunctionNaming:
+    active: true
+    # Allow PascalCase for @Composable functions; allow snake_case in @Test functions
+    functionPattern: '^([a-z$][a-zA-Z$0-9]*)|(`.*`)$'
+    ignoreAnnotated: ['Composable', 'Test']
+  MatchingDeclarationName:
+    # Project structure groups related declarations in one file (e.g. RideModel.kt, Theme.kt)
+    active: false
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][_A-Z0-9]*'
+    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
+    privatePropertyPattern: '_?[A-Za-z][_A-Za-z0-9]*'
+
+# ── Style ─────────────────────────────────────────────────────────────────────
+
+style:
+  MaxLineLength:
+    active: true
+    maxLineLength: 140
+    excludePackageStatements: true
+    excludeImportStatements: true
+    excludeRawStrings: true
+  MagicNumber:
+    active: true
+    ignoreNumbers: ['-1', '0', '1', '2']
+    ignoreHashCodeFunction: true
+    ignorePropertyDeclaration: true
+    ignoreConstantDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+    ignoreEnums: true
+    ignoreExtensionFunctions: true
+    ignoreAnnotated: ['Composable', 'Preview', 'Test']
+  WildcardImport:
+    active: true
+    excludeImports:
+      - 'java.util.*'
+      - 'kotlinx.android.synthetic.**'
+  ReturnCount:
+    active: true
+    max: 3
+    excludeGuardClauses: true
+  ForbiddenComment:
+    active: true
+    comments:
+      - value: 'STOPSHIP:'
+        reason: 'Must be resolved before release'
+  UnusedPrivateMember:
+    active: true
+    allowedNames: ''
+    ignoreAnnotated: ['Preview']
+  UnusedPrivateProperty:
+    active: true
+    allowedNames: '_|ignored|expected|serialVersionUID'
+  VarCouldBeVal:
+    active: true
+
+# ── Compose (io.nlopez.compose.rules) ────────────────────────────────────────
+
+Compose:
+  ComposableAnnotationNaming:
+    active: true
+  ComposableFunctionName:
+    active: true
+  ComposableNaming:
+    active: true
+  ComposableParamOrder:
+    active: true
+  CompositionLocalAllowlist:
+    active: false
+  CompositionLocalNaming:
+    active: true
+  ContentEmitterReturningValues:
+    active: true
+  DefaultsVisibility:
+    active: true
+  LambdaParameterInRestartableEffect:
+    active: true
+  ModifierComposable:
+    active: true
+  ModifierMissing:
+    active: true
+  ModifierNaming:
+    active: true
+  ModifierNotUsedAtRoot:
+    active: true
+  ModifierReused:
+    active: true
+  ModifierWithoutDefault:
+    active: true
+  MultipleEmitters:
+    active: true
+  MutableStateAutoboxing:
+    active: true
+  MutableStateParam:
+    active: true
+  PreviewAnnotationNaming:
+    active: true
+  PreviewPublic:
+    active: true
+  RememberMissing:
+    active: true
+  RememberStateMissing:
+    active: true
+  UnstableCollections:
+    active: false
+  ViewModelForwarding:
+    active: true
+  ViewModelInjection:
+    active: true
