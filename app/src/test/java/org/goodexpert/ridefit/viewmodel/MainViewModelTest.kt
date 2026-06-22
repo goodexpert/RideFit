@@ -270,6 +270,34 @@ class MainViewModelTest {
         assertFalse(state.showCancelGuideDialog)
     }
 
+    // ── 다크 모드 ─────────────────────────────────────────────────────────────
+
+    @Test
+    fun initialState_darkModeDisabled() {
+        assertFalse(state.isDarkMode)
+    }
+
+    @Test
+    fun darkModeToggle_on_enablesDarkMode() {
+        viewModel.onDarkModeToggleHandler(true)
+        assertTrue(state.isDarkMode)
+    }
+
+    @Test
+    fun darkModeToggle_off_disablesDarkMode() {
+        viewModel.onDarkModeToggleHandler(true)
+        viewModel.onDarkModeToggleHandler(false)
+        assertFalse(state.isDarkMode)
+    }
+
+    @Test
+    fun darkModeToggle_multipleToggles_reflectsLatestState() {
+        viewModel.onDarkModeToggleHandler(true)
+        viewModel.onDarkModeToggleHandler(false)
+        viewModel.onDarkModeToggleHandler(true)
+        assertTrue(state.isDarkMode)
+    }
+
     // ── 비상 녹화 ─────────────────────────────────────────────────────────────
 
     @Test
