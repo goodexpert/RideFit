@@ -36,6 +36,7 @@ interface MainContract {
         object DismissExitDialog : Actions()
         object ShowStopRecordingDialog : Actions()
         object DismissStopRecordingDialog : Actions()
+        data class ToggleDarkMode(val enabled: Boolean) : Actions()
     }
 
     sealed class SideEffect {
@@ -58,5 +59,6 @@ interface MainContract {
         val showCancelGuideDialog: Boolean = false,
         val showStopRecordingDialog: Boolean = false,
         val showSettingsSheet: Boolean = false,
+        val isDarkMode: Boolean = false,
     )
 }

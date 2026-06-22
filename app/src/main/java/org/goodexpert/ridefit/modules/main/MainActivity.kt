@@ -32,8 +32,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.AlertDialog
@@ -44,6 +46,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -127,7 +130,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            RideFitTheme {
+            val viewState by mainViewModel.viewState.collectAsState()
+            val systemDark = isSystemInDarkTheme()
+            RideFitTheme(darkTheme = if (viewState.isDarkMode) true else systemDark) {
                 AppContent()
             }
         }
@@ -227,8 +232,10 @@ class MainActivity : ComponentActivity() {
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
             ) {
                 SettingsSheetContent(
+                    darkModeEnabled = viewState.isDarkMode,
                     onAccountSettings = mainViewModel::onNavigateToAccountSettingsHandler,
                     onEmergencyVideos = mainViewModel::onNavigateToEmergencyVideosHandler,
+                    onDarkModeToggle = mainViewModel::onDarkModeToggleHandler,
                 )
             }
         }
@@ -401,8 +408,10 @@ private fun AppScreenContent(
 
 @Composable
 private fun SettingsSheetContent(
+    darkModeEnabled: Boolean,
     onAccountSettings: () -> Unit,
     onEmergencyVideos: () -> Unit,
+    onDarkModeToggle: (Boolean) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -423,6 +432,19 @@ private fun SettingsSheetContent(
         )
 
         HorizontalDivider(color = colorScheme.onSurface.copy(alpha = 0.08f))
+
+        SettingsSheetSwitchItem(
+            icon = Icons.Filled.DarkMode,
+            title = stringResource(R.string.settings_sheet_dark_mode),
+            desc = stringResource(R.string.settings_sheet_dark_mode_desc),
+            checked = darkModeEnabled,
+            onCheckedChange = onDarkModeToggle,
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            color = colorScheme.onSurface.copy(alpha = 0.06f),
+        )
 
         SettingsSheetItem(
             icon = Icons.Filled.AccountBalance,
@@ -492,6 +514,58 @@ private fun SettingsSheetItem(
                 color = colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
+    }
+}
+
+@Composable
+private fun SettingsSheetSwitchItem(
+    icon: ImageVector,
+    title: String,
+    desc: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .background(colorScheme.primary.copy(alpha = 0.10f), RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = colorScheme.primary,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp,
+                ),
+                color = colorScheme.onSurface,
+            )
+            Text(
+                text = desc,
+                style = MaterialTheme.typography.labelSmall,
+                color = colorScheme.onSurface.copy(alpha = 0.5f),
+            )
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+        )
     }
 }
 

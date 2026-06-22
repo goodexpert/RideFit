@@ -20,6 +20,7 @@ import org.goodexpert.ridefit.model.DriveMode
 import org.goodexpert.ridefit.modules.main.MainContract.Actions
 import org.goodexpert.ridefit.modules.main.MainContract.AppScreen
 import org.goodexpert.ridefit.repository.AudioPlayer
+import org.goodexpert.ridefit.repository.ThemeRepository
 import org.goodexpert.ridefit.repository.TtsPlayer
 import java.io.File
 
@@ -29,6 +30,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val audioPlayer = AudioPlayer(application)
     private val ttsPlayer = TtsPlayer(application)
     private val analytics = RideFitAnalytics(FirebaseAnalytics.getInstance(application))
+    private val themeRepository = ThemeRepository(application)
 
     private val _viewState = MutableStateFlow(MainContract.ViewState())
     val viewState: StateFlow<MainContract.ViewState> = _viewState.asStateFlow()
@@ -42,6 +44,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .launchIn(viewModelScope)
         ttsPlayer.isSpeaking
             .onEach { isSpeaking -> _viewState.update { it.copy(isSpeaking = isSpeaking) } }
+            .launchIn(viewModelScope)
+        themeRepository.isDarkMode
+            .onEach { isDark -> _viewState.update { it.copy(isDarkMode = isDark) } }
             .launchIn(viewModelScope)
     }
 
@@ -217,6 +222,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         emit(MainContract.SideEffect.PlayVideo(file))
     }
 
+    fun onDarkModeToggleHandler(enabled: Boolean) {
+        dispatch(Actions.ToggleDarkMode(enabled))
+        viewModelScope.launch { themeRepository.setDarkMode(enabled) }
+    }
+
     // ── Dispatch + Reduce ─────────────────────────────────────────────────────
 
     private fun dispatch(action: Actions) {
@@ -282,6 +292,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         Actions.DismissExitDialog -> state.copy(showExitDialog = false)
         Actions.ShowStopRecordingDialog -> state.copy(showStopRecordingDialog = true)
         Actions.DismissStopRecordingDialog -> state.copy(showStopRecordingDialog = false)
+        is Actions.ToggleDarkMode -> state.copy(isDarkMode = action.enabled)
     }
 
     private fun speakAccountGuide(account: BankAccount) {
