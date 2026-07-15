@@ -64,13 +64,21 @@ android {
         unitTests {
             isIncludeAndroidResources = true
             all { test ->
+                test.maxHeapSize = "4g"
                 // Forward roborazzi mode flags from Gradle command line to the forked test JVM.
                 // Record:  ./gradlew testDebugUnitTest -Proborazzi.test.record=true
-                // Verify:  ./gradlew testDebugUnitTest  (default — compare only, no fail)
-                listOf("roborazzi.test.record", "roborazzi.test.verify", "roborazzi.test.compare")
-                    .forEach { key ->
-                        project.findProperty(key)?.toString()?.let { test.systemProperty(key, it) }
-                    }
+                // Verify:  ./gradlew testDebugUnitTest  (default — compares and fails on diff)
+                val roborazziFlags =
+                    listOf("roborazzi.test.record", "roborazzi.test.verify", "roborazzi.test.compare")
+                val anyFlagSet = roborazziFlags.any { project.findProperty(it) != null }
+                roborazziFlags.forEach { key ->
+                    project.findProperty(key)?.toString()?.let { test.systemProperty(key, it) }
+                }
+                // Default to verify when no mode flag is passed, so a plain run actually
+                // compares snapshots and fails on a mismatch instead of no-op passing.
+                if (!anyFlagSet) {
+                    test.systemProperty("roborazzi.test.verify", "true")
+                }
             }
         }
     }
@@ -98,8 +106,10 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
