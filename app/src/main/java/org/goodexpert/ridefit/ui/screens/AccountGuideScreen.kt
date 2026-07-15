@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -23,13 +22,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,7 +36,8 @@ import org.goodexpert.ridefit.model.BankAccount
 import org.goodexpert.ridefit.ui.components.InfoRow
 import org.goodexpert.ridefit.ui.components.StatusBadge
 import org.goodexpert.ridefit.ui.components.VoiceScriptCard
-import org.goodexpert.ridefit.ui.theme.RideFitColors
+import org.goodexpert.ridefit.ui.components.button.PrimaryButton
+import org.goodexpert.ridefit.ui.components.button.SecondaryButton
 import org.goodexpert.ridefit.ui.theme.RideFitTheme
 import org.goodexpert.ridefit.ui.theme.rideFitColors
 
@@ -50,13 +49,10 @@ fun AccountGuideScreen(
     onConfirm: () -> Unit = {},
     onSetupAccount: () -> Unit = {},
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val appColors = MaterialTheme.rideFitColors
-
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -76,53 +72,42 @@ fun AccountGuideScreen(
                 script = script,
                 label = stringResource(R.string.transfer_voice_label),
             )
-            AccountInfoCard(bankAccount = bankAccount, appColors = appColors)
+            AccountInfoCard(bankAccount = bankAccount)
             RepeatButton(onClick = onRepeat)
             ConfirmButton(onClick = onConfirm)
         } else {
-            NoAccountCard(appColors = appColors, onSetupAccount = onSetupAccount)
+            NoAccountCard(onSetupAccount = onSetupAccount)
         }
     }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun AccountGuideHeader() {
-    val colorScheme = MaterialTheme.colorScheme
-
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         StatusBadge(text = stringResource(R.string.transfer_badge))
         Text(
             text = stringResource(R.string.transfer_title),
             style = MaterialTheme.typography.headlineLarge,
-            color = colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
             text = stringResource(R.string.transfer_desc),
             style = MaterialTheme.typography.bodyMedium,
-            color = colorScheme.onBackground.copy(alpha = 0.55f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
         )
     }
 }
 
-// ── Account info card ─────────────────────────────────────────────────────────
-
 @Composable
 private fun AccountInfoCard(
     bankAccount: BankAccount,
-    appColors: RideFitColors,
     modifier: Modifier = Modifier,
 ) {
-    val isDark = appColors.isDark
-    val bgColor = if (!isDark) MaterialTheme.colorScheme.surface else Color(0xFF14142A)
-    val borderColor = if (!isDark) Color(0xFFD0DEFF) else Color(0xFF2A2A4A)
-
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        border = BorderStroke(1.dp, borderColor),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.rideFitColors.cardContainer),
+        border = BorderStroke(1.dp, MaterialTheme.rideFitColors.cardBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -137,125 +122,80 @@ private fun AccountInfoCard(
             InfoRow(
                 label = stringResource(R.string.transfer_account_label),
                 value = bankAccount.accountNumber,
-                valueColor = appColors.brand,
+                valueColor = MaterialTheme.rideFitColors.brand,
                 showDivider = false,
             )
         }
     }
 }
 
-// ── Repeat button ─────────────────────────────────────────────────────────────
-
 @Composable
 private fun RepeatButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val appColors = MaterialTheme.rideFitColors
-    val isDark = appColors.isDark
-
-    val bgColor = if (!isDark) Color(0xFFF5F7FF) else Color(0xFF14142A)
-    val borderColor = if (!isDark) Color(0xFFD0DEFF) else Color(0xFF2A2A4A)
-
-    Card(
+    Surface(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 64.dp),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        border = BorderStroke(1.dp, borderColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.rideFitColors.subtleContainer,
+        border = BorderStroke(1.dp, MaterialTheme.rideFitColors.cardBorder),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Icon(
                 imageVector = Icons.Filled.Repeat,
                 contentDescription = null,
-                tint = appColors.brand,
-                modifier = Modifier.size(22.dp),
+                tint = MaterialTheme.rideFitColors.brand,
+                modifier = Modifier.size(24.dp),
             )
             Column {
                 Text(
                     text = stringResource(R.string.transfer_repeat_label),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.transfer_repeat_sub),
                     style = MaterialTheme.typography.labelSmall,
-                    color = appColors.onBackgroundSecondary,
+                    color = MaterialTheme.rideFitColors.onBackgroundSecondary,
                 )
             }
         }
     }
 }
 
-// ── Confirm button ────────────────────────────────────────────────────────────
-
 @Composable
 private fun ConfirmButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isDark = MaterialTheme.rideFitColors.isDark
-
-    val bgColor = if (!isDark) Color(0xFFDCFCE7) else Color(0xFF052E16)
-    val contentColor = if (!isDark) Color(0xFF15803D) else Color(0xFF4ADE80)
-
-    Card(
+    SecondaryButton(
+        title = stringResource(R.string.transfer_confirm),
+        contentDescription = stringResource(R.string.transfer_confirm),
         onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 80.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        modifier = modifier,
+        containerColor = MaterialTheme.rideFitColors.confirmContainer,
+        contentColor = MaterialTheme.rideFitColors.onConfirmContainer,
+        leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = contentColor,
                 modifier = Modifier.size(28.dp),
             )
-            Text(
-                modifier = Modifier.padding(start = 10.dp),
-                text = stringResource(R.string.transfer_confirm),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Black,
-                    fontSize = 22.sp,
-                ),
-                color = contentColor,
-            )
-        }
-    }
+        },
+    )
 }
-
-// ── No account state ──────────────────────────────────────────────────────────
 
 @Composable
 private fun NoAccountCard(
-    appColors: RideFitColors,
     onSetupAccount: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isDark = appColors.isDark
-    val bgColor = if (!isDark) Color(0xFFFFF9EC) else Color(0xFF1A1400)
-    val borderColor = if (!isDark) Color(0xFFFFE4A0) else Color(0xFF3A2800)
-    val titleColor = if (!isDark) Color(0xFF92400E) else Color(0xFFFBBF24)
-    val subColor = if (!isDark) Color(0xFFA85C10) else Color(0xFF9A7010)
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -263,8 +203,8 @@ private fun NoAccountCard(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = bgColor),
-            border = BorderStroke(1.dp, borderColor),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.rideFitColors.warningContainer),
+            border = BorderStroke(1.dp, MaterialTheme.rideFitColors.warningBorder),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(
@@ -274,52 +214,31 @@ private fun NoAccountCard(
                 Text(
                     text = stringResource(R.string.transfer_no_account),
                     style = MaterialTheme.typography.titleMedium,
-                    color = titleColor,
+                    color = MaterialTheme.rideFitColors.onWarning,
                 )
                 Text(
                     text = stringResource(R.string.transfer_no_account_desc),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
-                    color = subColor,
+                    color = MaterialTheme.rideFitColors.onWarningVariant,
                 )
             }
         }
-        Card(
+        PrimaryButton(
+            title = stringResource(R.string.transfer_setup),
+            contentDescription = stringResource(R.string.transfer_setup),
             onClick = onSetupAccount,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 80.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = appColors.brand),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            containerColor = MaterialTheme.rideFitColors.brand,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            leadingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Settings,
                     contentDescription = null,
-                    tint = Color.White,
                     modifier = Modifier.size(26.dp),
                 )
-                Text(
-                    modifier = Modifier.padding(start = 10.dp),
-                    text = stringResource(R.string.transfer_setup),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Black,
-                        fontSize = 22.sp,
-                    ),
-                    color = Color.White,
-                )
-            }
-        }
+            },
+        )
     }
 }
-
-// ── Previews ──────────────────────────────────────────────────────────────────
 
 private val sampleAccount = BankAccount(
     bankName = "카카오뱅크",

@@ -1,5 +1,6 @@
 package org.goodexpert.ridefit.ui.screens
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Bitmap
 import android.media.ThumbnailUtils
 import android.os.Build
@@ -61,12 +62,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.goodexpert.ridefit.R
+import org.goodexpert.ridefit.ui.theme.RideFitTheme
 import org.goodexpert.ridefit.ui.theme.rideFitColors
 import java.io.File
 import java.text.SimpleDateFormat
@@ -82,7 +85,6 @@ fun EmergencyVideoScreen(
     onPlayVideo: (File) -> Unit = {},
 ) {
     val context = LocalContext.current
-    val colorScheme = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
 
     val videoFiles = remember { mutableStateListOf<File>() }
@@ -101,7 +103,7 @@ fun EmergencyVideoScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding(),
     ) {
         VideoListHeader(onBack = onBack)
@@ -112,9 +114,9 @@ fun EmergencyVideoScreen(
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp),
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
             ) {
                 items(videoFiles, key = { it.absolutePath }) { file ->
                     SwipeableVideoItem(
@@ -130,12 +132,8 @@ fun EmergencyVideoScreen(
     }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun VideoListHeader(onBack: () -> Unit) {
-    val colorScheme = MaterialTheme.colorScheme
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -146,7 +144,7 @@ private fun VideoListHeader(onBack: () -> Unit) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = null,
-                tint = colorScheme.onBackground,
+                tint = MaterialTheme.colorScheme.onBackground,
             )
         }
         Text(
@@ -155,18 +153,13 @@ private fun VideoListHeader(onBack: () -> Unit) {
                 fontWeight = FontWeight.Black,
                 fontSize = 22.sp,
             ),
-            color = colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────────
-
 @Composable
 private fun EmptyState(modifier: Modifier = Modifier) {
-    val colorScheme = MaterialTheme.colorScheme
-    val appColors = MaterialTheme.rideFitColors
-
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -176,7 +169,7 @@ private fun EmptyState(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .size(80.dp)
                 .background(
-                    color = if (!appColors.isDark) Color(0xFFFFF5F5) else Color(0xFF1A0808),
+                    color = MaterialTheme.rideFitColors.emergencyContainer,
                     shape = RoundedCornerShape(20.dp),
                 ),
             contentAlignment = Alignment.Center,
@@ -184,7 +177,7 @@ private fun EmptyState(modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Filled.Videocam,
                 contentDescription = null,
-                tint = appColors.emergencyRed.copy(alpha = 0.5f),
+                tint = MaterialTheme.rideFitColors.emergencyRed.copy(alpha = 0.5f),
                 modifier = Modifier.size(36.dp),
             )
         }
@@ -192,20 +185,18 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.emergency_videos_empty),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(6.dp))
         Text(
             text = stringResource(R.string.emergency_videos_empty_desc),
             style = MaterialTheme.typography.bodyMedium,
-            color = colorScheme.onBackground.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
             textAlign = TextAlign.Center,
         )
     }
 }
-
-// ── Swipeable video item ──────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -252,32 +243,30 @@ private fun SwipeableVideoItem(
     }
 }
 
-// ── Delete background ─────────────────────────────────────────────────────────
-
 @Composable
 private fun DeleteBackground(isActive: Boolean) {
     val bgColor by animateColorAsState(
-        targetValue = if (isActive) Color(0xFFB91C1C) else Color(0xFFDC2626),
+        targetValue = if (isActive) MaterialTheme.rideFitColors.emergencyRedPressed else MaterialTheme.rideFitColors.emergencyRed,
         label = "delete_bg",
     )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(bgColor),
         contentAlignment = Alignment.CenterEnd,
     ) {
         Column(
-            modifier = Modifier.padding(end = 20.dp),
+            modifier = Modifier.padding(end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Icon(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(26.dp),
+                modifier = Modifier.size(32.dp),
             )
             Text(
                 text = stringResource(R.string.emergency_video_delete),
@@ -288,27 +277,21 @@ private fun DeleteBackground(isActive: Boolean) {
     }
 }
 
-// ── Video list item ───────────────────────────────────────────────────────────
-
 @Composable
 private fun VideoItem(file: File, onClick: () -> Unit) {
-    val colorScheme = MaterialTheme.colorScheme
-    val appColors = MaterialTheme.rideFitColors
-    val isDark = appColors.isDark
-
-    val bgColor     = if (!isDark) colorScheme.surface else Color(0xFF14142A)
-    val borderColor = if (!isDark) Color(0xFFD0DEFF) else Color(0xFF2A2A4A)
+    val bgColor     = MaterialTheme.rideFitColors.cardContainer
+    val borderColor = MaterialTheme.rideFitColors.cardBorder
 
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = bgColor),
         border = BorderStroke(1.dp, borderColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
@@ -326,31 +309,27 @@ private fun VideoItem(file: File, onClick: () -> Unit) {
                         fontSize = 15.sp,
                         lineHeight = 22.sp,
                     ),
-                    color = colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = file.displaySize(),
                     style = MaterialTheme.typography.labelSmall,
-                    color = colorScheme.onSurface.copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 )
             }
             Icon(
                 imageVector = Icons.Filled.PlayCircle,
                 contentDescription = stringResource(R.string.emergency_video_play_desc),
-                tint = appColors.brand,
+                tint = MaterialTheme.rideFitColors.brand,
                 modifier = Modifier.size(32.dp),
             )
         }
     }
 }
 
-// ── Thumbnail ─────────────────────────────────────────────────────────────────
-
 @Composable
 private fun VideoThumbnail(file: File, modifier: Modifier = Modifier) {
-    val appColors = MaterialTheme.rideFitColors
-
     val thumbnail by produceState<Bitmap?>(initialValue = null, key1 = file.absolutePath) {
         value = withContext(Dispatchers.IO) {
             runCatching {
@@ -369,8 +348,8 @@ private fun VideoThumbnail(file: File, modifier: Modifier = Modifier) {
 
     Box(
         modifier = modifier.background(
-            color = if (!appColors.isDark) Color(0xFFE8EDFF) else Color(0xFF0A0A20),
-            shape = RoundedCornerShape(10.dp),
+            color = MaterialTheme.rideFitColors.subtleContainer,
+            shape = RoundedCornerShape(8.dp),
         ),
         contentAlignment = Alignment.Center,
     ) {
@@ -382,20 +361,18 @@ private fun VideoThumbnail(file: File, modifier: Modifier = Modifier) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(10.dp)),
+                    .clip(RoundedCornerShape(4.dp)),
             )
         } else {
             Icon(
                 imageVector = Icons.Filled.Videocam,
                 contentDescription = null,
-                tint = appColors.brand.copy(alpha = 0.4f),
-                modifier = Modifier.size(28.dp),
+                tint = MaterialTheme.rideFitColors.brand.copy(alpha = 0.4f),
+                modifier = Modifier.size(32.dp),
             )
         }
     }
 }
-
-// ── File helpers ──────────────────────────────────────────────────────────────
 
 private fun File.displayDateTime(): String =
     runCatching {
@@ -416,5 +393,51 @@ private fun File.displaySize(): String {
         bytes >= BYTES_PER_MB -> "%.1f MB".format(bytes / BYTES_PER_MB.toDouble())
         bytes >= BYTES_PER_KB -> "%.1f KB".format(bytes / BYTES_PER_KB.toDouble())
         else                  -> "$bytes B"
+    }
+}
+
+// Non-existent file: the timestamped name drives displayDateTime(); the thumbnail
+// decode fails (no real mp4) so the placeholder state is what renders.
+private val previewVideoFile = File("emergency_20260715_143025.mp4")
+
+@Preview(name = "VideoItem · Day", showBackground = true, widthDp = 360)
+@Composable
+private fun VideoItemDayPreview() {
+    RideFitTheme(darkTheme = false) {
+        VideoItem(file = previewVideoFile, onClick = {})
+    }
+}
+
+@Preview(name = "VideoItem · Night", showBackground = true, widthDp = 360, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun VideoItemNightPreview() {
+    RideFitTheme(darkTheme = true) {
+        VideoItem(file = previewVideoFile, onClick = {})
+    }
+}
+
+@Preview(name = "VideoThumbnail · Day", showBackground = true)
+@Composable
+private fun VideoThumbnailDayPreview() {
+    RideFitTheme(darkTheme = false) {
+        VideoThumbnail(
+            file = previewVideoFile,
+            modifier = Modifier
+                .width(108.dp)
+                .height(72.dp),
+        )
+    }
+}
+
+@Preview(name = "VideoThumbnail · Night", showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun VideoThumbnailNightPreview() {
+    RideFitTheme(darkTheme = true) {
+        VideoThumbnail(
+            file = previewVideoFile,
+            modifier = Modifier
+                .width(108.dp)
+                .height(72.dp),
+        )
     }
 }

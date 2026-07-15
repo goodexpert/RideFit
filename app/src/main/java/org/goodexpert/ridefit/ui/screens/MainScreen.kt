@@ -28,19 +28,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,18 +47,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.goodexpert.ridefit.R
 import org.goodexpert.ridefit.model.DriveMode
+import org.goodexpert.ridefit.model.descRes
+import org.goodexpert.ridefit.model.hintRes
+import org.goodexpert.ridefit.model.icon
+import org.goodexpert.ridefit.model.labelRes
 import org.goodexpert.ridefit.ui.components.StatusBadge
-import org.goodexpert.ridefit.ui.theme.RideFitColors
+import org.goodexpert.ridefit.ui.components.button.PrimaryButton
+import org.goodexpert.ridefit.ui.components.button.SecondaryButton
 import org.goodexpert.ridefit.ui.theme.RideFitTheme
 import org.goodexpert.ridefit.ui.theme.rideFitColors
 
@@ -78,13 +78,10 @@ fun MainScreen(
     onAccountInfo: () -> Unit = {},
     onEmergency: () -> Unit = {},
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val appColors = MaterialTheme.rideFitColors
-
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -97,33 +94,50 @@ fun MainScreen(
             DriveModeHintCard(mode = selectedMode ?: DriveMode.QUIET)
             CompleteButton(onClick = onComplete)
         } else {
-            StartGuideButton(onClick = onStartGuide, brandColor = appColors.brand)
+            PrimaryButton(
+                title = stringResource(R.string.start_guide_label),
+                subtitle = stringResource(R.string.start_guide_hint),
+                contentDescription = stringResource(R.string.start_guide_label),
+                onClick = onStartGuide,
+                containerColor = MaterialTheme.rideFitColors.brand,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                    )
+                },
+            )
         }
 
         SectionLabel(textRes = R.string.section_drive_mode)
         DriveModeGrid(
             selectedMode = selectedMode,
             onModeChange = onModeChange,
-            appColors = appColors,
         )
-        AccountInfoButton(
+        PrimaryButton(
+            title = stringResource(R.string.main_account_info),
+            contentDescription = stringResource(R.string.main_account_info),
             onClick = onAccountInfo,
-            appColors = appColors,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            containerColor = MaterialTheme.rideFitColors.brand,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.AccountBalance,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                )
+            },
         )
         EmergencyButton(
             isRecording = isRecording,
             onLongClick = onEmergency,
-            appColors = appColors,
         )
     }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun MainScreenHeader(isRiding: Boolean, onOpenSettings: () -> Unit) {
-    val colorScheme = MaterialTheme.colorScheme
-
     val badgeText = stringResource(if (isRiding) R.string.ride_status else R.string.standby_status)
     val title     = stringResource(if (isRiding) R.string.ride_title_main else R.string.standby_title)
     val desc      = stringResource(if (isRiding) R.string.ride_desc else R.string.standby_desc)
@@ -141,12 +155,12 @@ private fun MainScreenHeader(isRiding: Boolean, onOpenSettings: () -> Unit) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineLarge,
-                color = colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
                 text = desc,
                 style = MaterialTheme.typography.bodyMedium,
-                color = colorScheme.onBackground.copy(alpha = 0.55f),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
             )
         }
         IconButton(onClick = onOpenSettings) {
@@ -159,115 +173,40 @@ private fun MainScreenHeader(isRiding: Boolean, onOpenSettings: () -> Unit) {
     }
 }
 
-// ── Start Guide Button ────────────────────────────────────────────────────────
-
-@Composable
-private fun StartGuideButton(onClick: () -> Unit, brandColor: Color) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 80.dp),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = brandColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.PlayArrow,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(32.dp),
-            )
-            Column {
-                Text(
-                    text = stringResource(R.string.start_guide_label),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Black,
-                        fontSize = 22.sp,
-                    ),
-                    color = Color.White,
-                )
-                Text(
-                    text = stringResource(R.string.start_guide_hint),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.65f),
-                )
-            }
-        }
-    }
-}
-
-// ── Complete Button ───────────────────────────────────────────────────────────
-
 @Composable
 private fun CompleteButton(onClick: () -> Unit) {
-    val isDark = MaterialTheme.rideFitColors.isDark
-
-    val bgColor      = if (!isDark) Color(0xFFDCFCE7) else Color(0xFF052E16)
-    val contentColor = if (!isDark) Color(0xFF15803D) else Color(0xFF4ADE80)
-
-    Card(
+    SecondaryButton(
+        title = stringResource(R.string.ride_complete),
+        contentDescription = stringResource(R.string.ride_complete),
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 80.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        containerColor = MaterialTheme.rideFitColors.confirmContainer,
+        contentColor = MaterialTheme.rideFitColors.onConfirmContainer,
+        leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
                 contentDescription = null,
-                tint = contentColor,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(24.dp),
             )
-            Text(
-                modifier = Modifier.padding(start = 10.dp),
-                text = stringResource(R.string.ride_complete),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Black,
-                    fontSize = 22.sp,
-                ),
-                color = contentColor,
-            )
-        }
-    }
+        },
+    )
 }
-
-// ── Drive Mode Hint Card ──────────────────────────────────────────────────────
 
 @Composable
 private fun DriveModeHintCard(mode: DriveMode) {
-    val colorScheme = MaterialTheme.colorScheme
-    val appColors = MaterialTheme.rideFitColors
-    val isDark = appColors.isDark
-
-    val bgColor     = if (!isDark) colorScheme.surface else Color(0xFF141428)
-    val borderColor = if (!isDark) Color(0xFFD0DEFF)   else Color(0xFF2A2A4A)
-    val iconColor   = if (!isDark) appColors.brand      else Color(0xFF5577FF)
+    val bgColor     = MaterialTheme.rideFitColors.cardContainer
+    val borderColor = MaterialTheme.rideFitColors.cardBorder
+    val iconColor   = MaterialTheme.rideFitColors.brandAccent
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = bgColor),
-        border = BorderStroke(1.5.dp, borderColor),
+        border = BorderStroke(1.dp, borderColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.Top,
         ) {
             Icon(
@@ -275,29 +214,23 @@ private fun DriveModeHintCard(mode: DriveMode) {
                 contentDescription = null,
                 tint = iconColor,
                 modifier = Modifier
-                    .size(22.dp)
-                    .padding(top = 2.dp),
+                    .size(24.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Text(
                     text = stringResource(mode.labelRes()),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(mode.hintRes()),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = colorScheme.onSurface.copy(alpha = 0.65f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
                 )
             }
         }
     }
 }
-
-// ── Section Label ─────────────────────────────────────────────────────────────
 
 @Composable
 private fun SectionLabel(@StringRes textRes: Int) {
@@ -308,13 +241,10 @@ private fun SectionLabel(@StringRes textRes: Int) {
     )
 }
 
-// ── Drive Mode Grid ───────────────────────────────────────────────────────────
-
 @Composable
 private fun DriveModeGrid(
     selectedMode: DriveMode?,
     onModeChange: (DriveMode) -> Unit,
-    appColors: RideFitColors,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(
@@ -325,14 +255,12 @@ private fun DriveModeGrid(
                 mode = DriveMode.QUIET,
                 isSelected = selectedMode == DriveMode.QUIET,
                 onClick = { onModeChange(DriveMode.QUIET) },
-                appColors = appColors,
                 modifier = Modifier.weight(1f),
             )
             DriveModeCard(
                 mode = DriveMode.FAST,
                 isSelected = selectedMode == DriveMode.FAST,
                 onClick = { onModeChange(DriveMode.FAST) },
-                appColors = appColors,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -344,14 +272,12 @@ private fun DriveModeGrid(
                 mode = DriveMode.SAFE,
                 isSelected = selectedMode == DriveMode.SAFE,
                 onClick = { onModeChange(DriveMode.SAFE) },
-                appColors = appColors,
                 modifier = Modifier.weight(1f),
             )
             DriveModeCard(
                 mode = DriveMode.MEDIA,
                 isSelected = selectedMode == DriveMode.MEDIA,
                 onClick = { onModeChange(DriveMode.MEDIA) },
-                appColors = appColors,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -363,25 +289,14 @@ private fun DriveModeCard(
     mode: DriveMode,
     isSelected: Boolean,
     onClick: () -> Unit,
-    appColors: RideFitColors,
     modifier: Modifier = Modifier,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val isDark = appColors.isDark
+    val isDark = MaterialTheme.rideFitColors.isDark
 
-    val containerColor = when {
-        isSelected && !isDark -> Color(0xFFEEF2FF)
-        isSelected &&  isDark -> Color(0xFF1A1A3A)
-        !isDark               -> colorScheme.surface
-        else                  -> Color(0xFF14142A)
-    }
-    val borderColor = when {
-        isSelected -> appColors.brand
-        !isDark    -> Color(0xFFD0DEFF)
-        else       -> Color(0xFF2A2A4A)
-    }
-    val iconColor  = if (isDark) Color(0xFF5577FF) else appColors.brand
-    val labelColor = if (isSelected && !isDark) appColors.brand else colorScheme.onSurface
+    val containerColor = if (isSelected) MaterialTheme.rideFitColors.subtleContainer else MaterialTheme.rideFitColors.cardContainer
+    val borderColor = if (isSelected) MaterialTheme.rideFitColors.brand else MaterialTheme.rideFitColors.cardBorder
+    val iconColor = MaterialTheme.rideFitColors.brandAccent
+    val labelColor = if (isSelected && !isDark) MaterialTheme.rideFitColors.brand else MaterialTheme.colorScheme.onSurface
 
     Card(
         onClick = onClick,
@@ -401,105 +316,52 @@ private fun DriveModeCard(
             Spacer(Modifier.height(7.dp))
             Text(
                 text = stringResource(mode.labelRes()),
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
+                style = MaterialTheme.typography.titleMedium,
                 color = labelColor,
             )
             Spacer(Modifier.height(2.dp))
             Text(
                 text = stringResource(mode.descRes()),
                 style = MaterialTheme.typography.labelSmall,
-                color = colorScheme.onSurface.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
     }
 }
-
-// ── Account Info Button ───────────────────────────────────────────────────────
-
-@Composable
-private fun AccountInfoButton(
-    onClick: () -> Unit,
-    appColors: RideFitColors,
-    modifier: Modifier = Modifier,
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 80.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.brand),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Filled.AccountBalance,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(26.dp),
-            )
-            Text(
-                modifier = Modifier.padding(start = 10.dp),
-                text = stringResource(R.string.main_account_info),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Black,
-                    fontSize = 22.sp,
-                ),
-                color = Color.White,
-            )
-        }
-    }
-}
-
-// ── Emergency Button ──────────────────────────────────────────────────────────
 
 @Composable
 private fun EmergencyButton(
     isRecording: Boolean,
     onLongClick: () -> Unit,
-    appColors: RideFitColors,
     modifier: Modifier = Modifier,
 ) {
-    val isDark = appColors.isDark
+    val bgColor     = MaterialTheme.rideFitColors.emergencyContainer
+    val borderColor = if (isRecording) MaterialTheme.rideFitColors.emergencyRed else MaterialTheme.rideFitColors.emergencyBorder
+    val labelColor = MaterialTheme.rideFitColors.onEmergency
+    val subColor   = MaterialTheme.rideFitColors.onEmergencyVariant
 
-    val bgColor     = if (!isDark) Color(0xFFFFF5F5) else Color(0xFF1A0808)
-    val borderColor = when {
-        isRecording -> appColors.emergencyRed
-        !isDark     -> Color(0xFFFFCCCC)
-        else        -> Color(0xFF4A1515)
-    }
-    val labelColor = if (!isDark) Color(0xFFCC2222) else Color(0xFFFF5555)
-    val subColor   = if (!isDark) Color(0xFFAA4444) else Color(0xFF883333)
-
-    Card(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(Unit) {
                 detectTapGestures(onLongPress = { onLongClick() })
             },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
+        color = bgColor,
         border = BorderStroke(if (isRecording) 2.dp else 1.5.dp, borderColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            PulseDot(color = appColors.emergencyRed)
+            PulseDot(color = MaterialTheme.rideFitColors.emergencyRed)
             Column {
                 Text(
                     text = stringResource(
                         if (isRecording) R.string.emergency_title_recording else R.string.emergency_title,
                     ),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
+                    style = MaterialTheme.typography.titleMedium,
                     color = labelColor,
                 )
                 Text(
@@ -513,8 +375,6 @@ private fun EmergencyButton(
         }
     }
 }
-
-// ── Shared components ─────────────────────────────────────────────────────────
 
 @Composable
 fun PulseDot(
@@ -538,41 +398,6 @@ fun PulseDot(
             .background(color.copy(alpha = alpha), CircleShape),
     )
 }
-
-// ── DriveMode helpers ─────────────────────────────────────────────────────────
-
-private fun DriveMode.icon(): ImageVector = when (this) {
-    DriveMode.QUIET -> Icons.AutoMirrored.Filled.VolumeOff
-    DriveMode.FAST  -> Icons.Filled.Bolt
-    DriveMode.SAFE  -> Icons.Filled.Security
-    DriveMode.MEDIA -> Icons.Filled.Headphones
-}
-
-@StringRes
-private fun DriveMode.labelRes(): Int = when (this) {
-    DriveMode.QUIET -> R.string.mode_quiet
-    DriveMode.FAST  -> R.string.mode_fast
-    DriveMode.SAFE  -> R.string.mode_safe
-    DriveMode.MEDIA -> R.string.mode_media
-}
-
-@StringRes
-private fun DriveMode.descRes(): Int = when (this) {
-    DriveMode.QUIET -> R.string.mode_quiet_desc
-    DriveMode.FAST  -> R.string.mode_fast_desc
-    DriveMode.SAFE  -> R.string.mode_safe_desc
-    DriveMode.MEDIA -> R.string.mode_media_desc
-}
-
-@StringRes
-private fun DriveMode.hintRes(): Int = when (this) {
-    DriveMode.QUIET -> R.string.ride_hint_quiet
-    DriveMode.FAST  -> R.string.ride_hint_fast
-    DriveMode.SAFE  -> R.string.ride_hint_safe
-    DriveMode.MEDIA -> R.string.ride_hint_media
-}
-
-// ── Previews ──────────────────────────────────────────────────────────────────
 
 @Preview(name = "Main · Standby · Day", showBackground = true, widthDp = 360, heightDp = 800)
 @Composable

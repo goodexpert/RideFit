@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -23,8 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +50,7 @@ import org.goodexpert.ridefit.R
 import org.goodexpert.ridefit.model.BankAccount
 import org.goodexpert.ridefit.ui.components.BankPickerBottomSheet
 import org.goodexpert.ridefit.ui.components.VoiceScriptCard
+import org.goodexpert.ridefit.ui.components.button.PrimaryButton
 import org.goodexpert.ridefit.ui.theme.RideFitTheme
 import org.goodexpert.ridefit.ui.theme.rideFitColors
 
@@ -72,7 +70,6 @@ fun AccountSettingsScreen(
 ) {
     var showBankPicker by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
-    val colorScheme = MaterialTheme.colorScheme
 
     val handleBack = { if (isDirty) showDiscardDialog = true else onBack() }
 
@@ -102,21 +99,20 @@ fun AccountSettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding(),
     ) {
         SettingsTopBar(onBack = handleBack)
         HorizontalDivider(
             thickness = 0.5.dp,
-            color = colorScheme.onBackground.copy(alpha = 0.08f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.08f),
         )
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-                .padding(top = 24.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             SettingsHeader()
             SettingsFields(
@@ -136,7 +132,20 @@ fun AccountSettingsScreen(
                 holderName = holderName,
                 accountNumber = accountNumber,
             )
-            SaveButton(onClick = onSave)
+            PrimaryButton(
+                title = stringResource(R.string.settings_save),
+                contentDescription = stringResource(R.string.settings_save),
+                onClick = onSave,
+                modifier = modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Save,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                    )
+                },
+            )
         }
     }
 
@@ -150,8 +159,6 @@ fun AccountSettingsScreen(
         )
     }
 }
-
-// ── Top bar ───────────────────────────────────────────────────────────────────
 
 @Composable
 private fun SettingsTopBar(
@@ -179,11 +186,8 @@ private fun SettingsTopBar(
     }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun SettingsHeader(modifier: Modifier = Modifier) {
-    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -191,17 +195,15 @@ private fun SettingsHeader(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.settings_header),
             style = MaterialTheme.typography.headlineLarge.copy(fontSize = 24.sp),
-            color = colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
             text = stringResource(R.string.settings_desc),
             style = MaterialTheme.typography.bodyMedium,
-            color = colorScheme.onBackground.copy(alpha = 0.55f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
         )
     }
 }
-
-// ── Input fields ──────────────────────────────────────────────────────────────
 
 @Composable
 private fun SettingsFields(
@@ -216,19 +218,16 @@ private fun SettingsFields(
 ) {
     val holderFocus = remember { FocusRequester() }
     val accountFocus = remember { FocusRequester() }
-    val appColors = MaterialTheme.rideFitColors
-    val isDark = appColors.isDark
-    val unfocusedBorder = if (!isDark) Color(0xFFD0DEFF) else Color(0xFF2A2A4A)
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         BankNameField(
             label = stringResource(R.string.settings_bank_name),
             value = bankName,
             placeholder = stringResource(R.string.settings_bank_name_hint),
-            unfocusedBorderColor = unfocusedBorder,
+            unfocusedBorderColor = MaterialTheme.rideFitColors.cardBorder,
             onClick = onBankFieldClick,
         )
         AccountField(
@@ -236,7 +235,7 @@ private fun SettingsFields(
             value = holderName,
             placeholder = stringResource(R.string.settings_holder_name_hint),
             onValueChange = onHolderNameChange,
-            unfocusedBorderColor = unfocusedBorder,
+            unfocusedBorderColor = MaterialTheme.rideFitColors.cardBorder,
             imeAction = ImeAction.Next,
             keyboardActions = KeyboardActions(onNext = { accountFocus.requestFocus() }),
             fieldModifier = Modifier.focusRequester(holderFocus),
@@ -246,7 +245,7 @@ private fun SettingsFields(
             value = accountNumber,
             placeholder = stringResource(R.string.settings_account_number_hint),
             onValueChange = onAccountNumberChange,
-            unfocusedBorderColor = unfocusedBorder,
+            unfocusedBorderColor = MaterialTheme.rideFitColors.cardBorder,
             imeAction = ImeAction.Done,
             keyboardActions = KeyboardActions(onDone = { onSave() }),
             fieldModifier = Modifier.focusRequester(accountFocus),
@@ -266,8 +265,6 @@ private fun AccountField(
     modifier: Modifier = Modifier,
     fieldModifier: Modifier = Modifier,
 ) {
-    val appColors = MaterialTheme.rideFitColors
-
     Column(modifier = modifier) {
         Text(
             text = label,
@@ -295,18 +292,16 @@ private fun AccountField(
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = appColors.brand,
+                focusedBorderColor = MaterialTheme.rideFitColors.brand,
                 unfocusedBorderColor = unfocusedBorderColor,
-                focusedLabelColor = appColors.brand,
-                unfocusedLabelColor = appColors.onBackgroundSecondary,
+                focusedLabelColor = MaterialTheme.rideFitColors.brand,
+                unfocusedLabelColor = MaterialTheme.rideFitColors.onBackgroundSecondary,
             ),
             keyboardOptions = KeyboardOptions(imeAction = imeAction),
             keyboardActions = keyboardActions,
         )
     }
 }
-
-// ── Voice preview ─────────────────────────────────────────────────────────────
 
 @Composable
 private fun VoicePreviewSection(
@@ -344,52 +339,6 @@ private fun VoicePreviewSection(
     }
 }
 
-// ── Save button ───────────────────────────────────────────────────────────────
-
-@Composable
-private fun SaveButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val appColors = MaterialTheme.rideFitColors
-
-    Card(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 80.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.brand),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Save,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(26.dp),
-            )
-            Text(
-                modifier = Modifier.padding(start = 10.dp),
-                text = stringResource(R.string.settings_save),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Black,
-                    fontSize = 22.sp,
-                ),
-                color = Color.White,
-            )
-        }
-    }
-}
-
-// ── Bank name field (read-only, opens picker) ─────────────────────────────────
-
 @Composable
 private fun BankNameField(
     label: String,
@@ -399,9 +348,6 @@ private fun BankNameField(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val appColors = MaterialTheme.rideFitColors
-    val colorScheme = MaterialTheme.colorScheme
-
     Column(modifier = modifier) {
         Text(
             text = label,
@@ -409,7 +355,7 @@ private fun BankNameField(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
             ),
-            color = colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(bottom = 6.dp),
         )
         OutlinedTextField(
@@ -436,18 +382,16 @@ private fun BankNameField(
             },
             colors = OutlinedTextFieldDefaults.colors(
                 disabledBorderColor = unfocusedBorderColor,
-                disabledTextColor = colorScheme.onBackground,
-                disabledPlaceholderColor = colorScheme.onBackground.copy(alpha = 0.35f),
-                disabledTrailingIconColor = appColors.onBackgroundSecondary,
-                disabledContainerColor = colorScheme.surface,
-                focusedBorderColor = appColors.brand,
+                disabledTextColor = MaterialTheme.colorScheme.onBackground,
+                disabledPlaceholderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f),
+                disabledTrailingIconColor = MaterialTheme.rideFitColors.onBackgroundSecondary,
+                disabledContainerColor = MaterialTheme.colorScheme.surface,
+                focusedBorderColor = MaterialTheme.rideFitColors.brand,
                 unfocusedBorderColor = unfocusedBorderColor,
             ),
         )
     }
 }
-
-// ── Previews ──────────────────────────────────────────────────────────────────
 
 @Preview(name = "Settings · Day", showBackground = true, widthDp = 360, heightDp = 800)
 @Composable

@@ -111,6 +111,8 @@
     <string name="intro_playing_label">탑승 안내 중...</string>
     <string name="intro_skip">건너뛰기</string>
     <string name="intro_skip_hint">안내를 건너뛰고 바로 이동합니다</string>
+    <string name="intro_cancel">운행 취소</string>
+    <string name="intro_cancel_hint">안내를 중단하고 운행을 취소합니다</string>
     <string name="script_intro">안녕하세요. 탑승해 주셔서 감사합니다.\n오늘도 안전하고 쾌적한 이동을 도와드리겠습니다.</string>
 
     <!-- Ride screen -->

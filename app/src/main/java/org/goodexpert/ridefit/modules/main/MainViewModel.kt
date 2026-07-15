@@ -188,6 +188,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         dispatch(Actions.ShowStopRecordingDialog)
     }
 
+    fun onCancelGuidePressedHandler() {
+        dispatch(Actions.ShowCancelGuideDialog)
+    }
+
     fun onCancelGuideConfirmHandler() {
         analytics.logGuideCancelled()
         ttsPlayer.stop()

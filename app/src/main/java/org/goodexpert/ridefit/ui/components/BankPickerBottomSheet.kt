@@ -185,7 +185,7 @@ private fun BankSearchField(
             )
         },
         singleLine = true,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(8.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = appColors.brand,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline,

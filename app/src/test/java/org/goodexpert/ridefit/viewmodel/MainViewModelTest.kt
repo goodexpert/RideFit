@@ -258,6 +258,34 @@ class MainViewModelTest {
     // ── 안내 취소 다이얼로그 ──────────────────────────────────────────────────
 
     @Test
+    fun cancelGuidePressed_showsCancelGuideDialog() {
+        viewModel.onStartGuideHandler()
+        viewModel.onCancelGuidePressedHandler()
+        assertTrue(state.showCancelGuideDialog)
+    }
+
+    @Test
+    fun cancelGuidePressed_thenConfirm_returnsToStandby_notRiding() {
+        viewModel.onModeSelectedHandler(DriveMode.FAST)
+        viewModel.onCancelGuidePressedHandler()
+        viewModel.onCancelGuideConfirmHandler()
+
+        assertEquals(AppScreen.STANDBY, state.currentScreen)
+        assertFalse(state.isRiding)
+        assertFalse(state.showCancelGuideDialog)
+    }
+
+    @Test
+    fun cancelGuidePressed_thenDismiss_staysOnIntro() {
+        viewModel.onStartGuideHandler()
+        viewModel.onCancelGuidePressedHandler()
+        viewModel.onCancelGuideDismissHandler()
+
+        assertEquals(AppScreen.INTRO, state.currentScreen)
+        assertFalse(state.showCancelGuideDialog)
+    }
+
+    @Test
     fun cancelGuideDismiss_hidesDialog() {
         viewModel.onCancelGuideDismissHandler()
         assertFalse(state.showCancelGuideDialog)

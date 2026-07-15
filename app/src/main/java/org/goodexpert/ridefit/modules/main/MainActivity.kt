@@ -19,6 +19,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +33,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.DarkMode
@@ -200,6 +200,7 @@ class MainActivity : ComponentActivity() {
             onStartGuide = mainViewModel::onStartGuideHandler,
             onIntroSkip = mainViewModel::onIntroSkipHandler,
             onModeIntroSkip = mainViewModel::onModeIntroSkipHandler,
+            onGuideCancel = mainViewModel::onCancelGuidePressedHandler,
             onEmergency = mainViewModel::onEmergencyHandler,
             onRideComplete = mainViewModel::onRideCompleteHandler,
             onNewRide = mainViewModel::onNewRideHandler,
@@ -242,8 +243,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ── Dialogs ───────────────────────────────────────────────────────────────────
-
+/** Dialogs. */
 @Composable
 private fun AppDialogs(
     showCancelGuide: Boolean,
@@ -311,8 +311,7 @@ private fun AppDialogs(
     }
 }
 
-// ── Screen content ────────────────────────────────────────────────────────────
-
+/** Screen content. */
 @Suppress("LongParameterList")
 @Composable
 private fun AppScreenContent(
@@ -326,6 +325,7 @@ private fun AppScreenContent(
     onStartGuide: () -> Unit,
     onIntroSkip: () -> Unit,
     onModeIntroSkip: () -> Unit,
+    onGuideCancel: () -> Unit,
     onEmergency: () -> Unit,
     onRideComplete: () -> Unit,
     onNewRide: () -> Unit,
@@ -359,11 +359,13 @@ private fun AppScreenContent(
                 selectedMode = viewState.selectedMode ?: DriveMode.QUIET,
                 isPlaying = viewState.isPlayingAudio,
                 onSkip = onIntroSkip,
+                onCancel = onGuideCancel,
             )
             AppScreen.MODE_INTRO -> VoiceGuideScreen(
                 selectedMode = viewState.selectedMode ?: DriveMode.QUIET,
                 isPlaying = viewState.isPlayingAudio,
                 onSkip = onModeIntroSkip,
+                onCancel = onGuideCancel,
             )
             AppScreen.COMPLETED -> CompletedScreen(
                 onNewRide = onNewRide,
@@ -404,8 +406,7 @@ private fun AppScreenContent(
     }
 }
 
-// ── Settings sheet content ────────────────────────────────────────────────────
-
+/** Settings sheet content. */
 @Composable
 private fun SettingsSheetContent(
     darkModeEnabled: Boolean,
@@ -569,8 +570,7 @@ private fun SettingsSheetSwitchItem(
     }
 }
 
-// ── Recording stop FAB ────────────────────────────────────────────────────────
-
+/** Recording stop FAB. */
 @Composable
 private fun RecordingStopFab(
     onClick: () -> Unit,

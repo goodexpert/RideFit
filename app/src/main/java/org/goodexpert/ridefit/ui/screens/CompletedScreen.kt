@@ -6,10 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -27,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.goodexpert.ridefit.R
 import org.goodexpert.ridefit.ui.components.StarRating
+import org.goodexpert.ridefit.ui.components.button.PrimaryButton
 import org.goodexpert.ridefit.ui.theme.RideFitTheme
 import org.goodexpert.ridefit.ui.theme.rideFitColors
 
@@ -45,12 +43,10 @@ fun CompletedScreen(
     rating: Int = 5,
     onNewRide: () -> Unit = {},
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -60,19 +56,27 @@ fun CompletedScreen(
     ) {
         CompletedHeader()
         CompletedCard(rating = rating)
-        NewRideButton(onClick = onNewRide)
+        PrimaryButton(
+            title = stringResource(R.string.completed_new_ride),
+            contentDescription = stringResource(R.string.completed_new_ride),
+            onClick = onNewRide,
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Home,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                )
+            },
+        )
     }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun CompletedHeader(modifier: Modifier = Modifier) {
-    val colorScheme = MaterialTheme.colorScheme
-    val appColors = MaterialTheme.rideFitColors
-    val isDark = appColors.isDark
-    val boxBg = if (!isDark) Color(0xFFDCFCE7) else Color(0xFF052E16)
-    val accentColor = if (!isDark) appColors.confirmGreen else Color(0xFF4ADE80)
+    val boxBg = MaterialTheme.rideFitColors.confirmContainer
+    val accentColor = MaterialTheme.rideFitColors.onConfirmContainer
 
     Column(
         modifier = modifier,
@@ -101,26 +105,21 @@ private fun CompletedHeader(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.completed_subtitle),
             style = MaterialTheme.typography.bodyMedium,
-            color = colorScheme.onBackground.copy(alpha = 0.55f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
             textAlign = TextAlign.Center,
         )
     }
 }
-
-// ── Completed card ────────────────────────────────────────────────────────────
 
 @Composable
 private fun CompletedCard(
     modifier: Modifier = Modifier,
     rating: Int = 5,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val appColors = MaterialTheme.rideFitColors
-    val isDark = appColors.isDark
-    val bgColor = if (!isDark) colorScheme.surface else Color(0xFF14142A)
-    val borderColor = if (!isDark) Color(0xFFD0DEFF) else Color(0xFF2A2A4A)
-    val labelColor = if (!isDark) Color(0xFF6677AA) else Color(0xFF4A4A7A)
-    val scriptColor = if (!isDark) Color(0xFF3A5080) else Color(0xFF8899CC)
+    val bgColor = MaterialTheme.rideFitColors.cardContainer
+    val borderColor = MaterialTheme.rideFitColors.cardBorder
+    val labelColor = MaterialTheme.rideFitColors.onSurfaceFaint
+    val scriptColor = MaterialTheme.rideFitColors.onBackgroundSecondary
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -149,7 +148,7 @@ private fun CompletedCard(
                 ),
                 color = scriptColor,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 14.dp),
+                modifier = Modifier.padding(bottom = 16.dp),
             )
             StarRating(
                 modifier = Modifier.fillMaxWidth(),
@@ -158,52 +157,6 @@ private fun CompletedCard(
         }
     }
 }
-
-// ── New ride button ───────────────────────────────────────────────────────────
-
-@Composable
-private fun NewRideButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val appColors = MaterialTheme.rideFitColors
-
-    Card(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 80.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.brand),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Home,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(26.dp),
-            )
-            Text(
-                modifier = Modifier.padding(start = 10.dp),
-                text = stringResource(R.string.completed_new_ride),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Black,
-                    fontSize = 22.sp,
-                ),
-                color = Color.White,
-            )
-        }
-    }
-}
-
-// ── Previews ──────────────────────────────────────────────────────────────────
 
 @Preview(name = "Completed · Day", showBackground = true, widthDp = 360, heightDp = 800)
 @Composable

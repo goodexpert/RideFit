@@ -209,6 +209,40 @@ class RideFitE2ETest {
         rule.onNodeWithText("안내 재생 중").assertIsDisplayed()
     }
 
+    // ── 운행 취소 button on VoiceGuide ────────────────────────────────────────
+
+    @Test
+    fun scenario_cancelButton_onVoiceGuide_showsCancelDialog() {
+        selectMode("조용히")
+        rule.onNodeWithText("운행 취소").assertIsDisplayed()
+
+        rule.onNodeWithText("운행 취소").performClick()
+
+        rule.onNodeWithText("안내 재생 중").assertIsDisplayed()
+        rule.onNodeWithText("음성 안내를 중단하시겠습니까?").assertIsDisplayed()
+    }
+
+    @Test
+    fun scenario_cancelButton_confirm_returnsToStandby_notRiding() {
+        selectMode("조용히")
+        rule.onNodeWithText("운행 취소").performClick()
+        rule.onNodeWithText("중단").performClick()
+
+        // Back to standby in the pre-ride state, not the riding state
+        rule.onNodeWithText("준비 완료").assertIsDisplayed()
+        rule.onNodeWithText("안내 재생 중").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun scenario_cancelButton_continue_staysOnVoiceGuide() {
+        selectMode("조용히")
+        rule.onNodeWithText("운행 취소").performClick()
+        rule.onNodeWithText("계속").performClick()
+
+        rule.onNodeWithText("안내 재생 중").assertIsNotDisplayed()
+        rule.onNodeWithText("건너뛰기").assertIsDisplayed()
+    }
+
     // ── Account Settings flow ─────────────────────────────────────────────────
 
     @Test

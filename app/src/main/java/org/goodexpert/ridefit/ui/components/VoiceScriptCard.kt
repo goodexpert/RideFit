@@ -1,5 +1,6 @@
 package org.goodexpert.ridefit.ui.components
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,17 +8,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import org.goodexpert.ridefit.ui.theme.RideFitTheme
 import org.goodexpert.ridefit.ui.theme.rideFitColors
 
 @Composable
@@ -28,20 +29,18 @@ fun VoiceScriptCard(
     isPlaying: Boolean = true,
 ) {
     val appColors = MaterialTheme.rideFitColors
-    val isDark = appColors.isDark
 
-    val bgColor = if (!isDark) Color(0xFFEEF2FF) else Color(0xFF0B1628)
-    val borderColor = if (!isDark) appColors.brand.copy(alpha = 0.25f) else Color(0xFF5577FF).copy(alpha = 0.25f)
-    val scriptColor = if (!isDark) appColors.brand else Color(0xFF93C5FD)
+    val bgColor = appColors.cardContainer
+    val borderColor = appColors.brandAccent.copy(alpha = 0.25f)
+    val scriptColor = appColors.brandAccent
 
-    Card(
+    Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
+        color = bgColor,
         border = BorderStroke(1.dp, borderColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -51,22 +50,66 @@ fun VoiceScriptCard(
                 }
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp,
-                    ),
+                    style = MaterialTheme.typography.titleSmall,
                     color = appColors.brand,
                 )
             }
             Text(
                 modifier = Modifier.padding(top = 8.dp),
                 text = script,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
-                ),
+                style = MaterialTheme.typography.bodySmall,
                 color = scriptColor,
             )
         }
+    }
+}
+
+/** A label + script pair (and playing state) for previewing [VoiceScriptCard]. */
+data class VoiceScriptSample(
+    val label: String,
+    val script: String,
+    val isPlaying: Boolean,
+)
+
+class VoiceScriptCardProvider : PreviewParameterProvider<VoiceScriptSample> {
+    override val values = sequenceOf(
+        VoiceScriptSample(
+            label = "탑승 안내",
+            script = "안녕하세요, 안전벨트를 착용해 주세요. 편안하게 모시겠습니다.",
+            isPlaying = true,
+        ),
+        VoiceScriptSample(
+            label = "계좌 안내",
+            script = "카카오뱅크 3333-04-1234567 홍길동 님께 이체 부탁드립니다.",
+            isPlaying = false,
+        ),
+    )
+}
+
+@Preview(name = "VoiceScriptCard · Day", showBackground = true, widthDp = 360)
+@Composable
+private fun VoiceScriptCardDayPreview(
+    @PreviewParameter(VoiceScriptCardProvider::class) sample: VoiceScriptSample,
+) {
+    RideFitTheme(darkTheme = false) {
+        VoiceScriptCard(
+            script = sample.script,
+            label = sample.label,
+            isPlaying = sample.isPlaying,
+        )
+    }
+}
+
+@Preview(name = "VoiceScriptCard · Night", showBackground = true, widthDp = 360, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun VoiceScriptCardNightPreview(
+    @PreviewParameter(VoiceScriptCardProvider::class) sample: VoiceScriptSample,
+) {
+    RideFitTheme(darkTheme = true) {
+        VoiceScriptCard(
+            script = sample.script,
+            label = sample.label,
+            isPlaying = sample.isPlaying,
+        )
     }
 }

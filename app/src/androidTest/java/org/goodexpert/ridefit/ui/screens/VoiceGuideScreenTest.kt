@@ -71,6 +71,34 @@ class VoiceGuideScreenTest {
     }
 
     @Test
+    fun cancelButton_isDisplayed() {
+        rule.setContent {
+            RideFitTheme { VoiceGuideScreen() }
+        }
+        rule.onNodeWithText("운행 취소").assertIsDisplayed()
+    }
+
+    @Test
+    fun cancelHint_isDisplayed() {
+        rule.setContent {
+            RideFitTheme { VoiceGuideScreen() }
+        }
+        rule.onNodeWithText("안내를 중단하고 운행을 취소합니다").assertIsDisplayed()
+    }
+
+    @Test
+    fun clickingCancel_invokesCallback() {
+        var called = false
+        rule.setContent {
+            RideFitTheme {
+                VoiceGuideScreen(onCancel = { called = true })
+            }
+        }
+        rule.onNodeWithText("운행 취소").performClick()
+        assertTrue(called)
+    }
+
+    @Test
     fun differentModes_showCorrectLabel() {
         rule.setContent {
             RideFitTheme { VoiceGuideScreen(selectedMode = DriveMode.SAFE) }

@@ -32,11 +32,11 @@ val Typography = Typography(
         lineHeight = 36.sp,
         letterSpacing = 0.sp,
     ),
-    // Button label — 20sp / Bold
+    // Button label — 22sp / Black
     titleLarge = TextStyle(
         fontFamily = NotoSansKrFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
+        fontWeight = FontWeight.Black,
+        fontSize = 22.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp,
     ),
