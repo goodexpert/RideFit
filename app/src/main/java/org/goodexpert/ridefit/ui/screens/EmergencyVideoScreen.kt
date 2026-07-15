@@ -6,19 +6,27 @@ import android.media.ThumbnailUtils
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -30,21 +38,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxState
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -56,16 +61,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.goodexpert.ridefit.R
@@ -76,14 +84,14 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.abs
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmergencyVideoScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
     onPlayVideo: (File) -> Unit = {},
+    onShareVideo: (File) -> Unit = {},
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -123,10 +131,12 @@ fun EmergencyVideoScreen(
                     SwipeableVideoItem(
                         file = file,
                         onClick = { onPlayVideo(file) },
-                    ) {
-                        videoFiles.remove(file)
-                        scope.launch(Dispatchers.IO) { file.delete() }
-                    }
+                        onShare = { onShareVideo(file) },
+                        onDelete = {
+                            videoFiles.remove(file)
+                            scope.launch(Dispatchers.IO) { file.delete() }
+                        },
+                    )
                 }
             }
         }
@@ -202,82 +212,112 @@ private fun EmptyState(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * A video row that reveals fixed [공유 / 삭제] action buttons when swiped left. The card
+ * rests open (anchored) so the buttons are tappable — it never deletes on a full swipe, so an
+ * emergency clip can't be lost by an accidental fling. Tapping the open card (or swiping back
+ * right) closes it; tapping the closed card plays the video.
+ */
 @Composable
 private fun SwipeableVideoItem(
     file: File,
     onClick: () -> Unit,
+    onShare: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    var itemWidthPx by remember { mutableStateOf(0f) }
-    // Ref pattern to avoid circular dependency: dismissState references itself in confirmValueChange.
-    // Setting stateRef synchronously in composition guarantees it's populated before any gesture fires.
-    val stateRef = remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
+    val scope = rememberCoroutineScope()
+    val actionsWidthPx = with(LocalDensity.current) { ACTIONS_WIDTH.toPx() }
+    // Live drag offset updated synchronously (no per-delta coroutine → no race with settle).
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var settleJob by remember { mutableStateOf<Job?>(null) }
 
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = { value ->
-            if (value == SwipeToDismissBoxValue.EndToStart) {
-                val state = stateRef.value ?: return@rememberSwipeToDismissBoxState false
-                itemWidthPx > 0f && abs(state.requireOffset()) / itemWidthPx >= SWIPE_THRESHOLD
-            } else {
-                true
+    fun settleTo(target: Float) {
+        settleJob?.cancel()
+        settleJob = scope.launch {
+            animate(offsetX, target, animationSpec = tween(REVEAL_ANIM_MS)) { value, _ ->
+                offsetX = value
             }
-        },
-        positionalThreshold = { totalDistance -> totalDistance * SWIPE_THRESHOLD },
-    )
-    stateRef.value = dismissState
+        }
+    }
 
-    SwipeToDismissBox(
-        state = dismissState,
-        enableDismissFromStartToEnd = false,
-        enableDismissFromEndToStart = true,
-        onDismiss = { value ->
-            if (value == SwipeToDismissBoxValue.EndToStart) {
-                onDelete()
-            }
-        },
-        backgroundContent = {
-            DeleteBackground(
-                isActive = dismissState.targetValue == SwipeToDismissBoxValue.EndToStart,
+    val draggableState = rememberDraggableState { delta ->
+        offsetX = (offsetX + delta).coerceIn(-actionsWidthPx, 0f)
+    }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        // Revealed action buttons, pinned to the trailing edge behind the card.
+        Row(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(8.dp)),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            SwipeActionButton(
+                icon = Icons.Filled.Share,
+                label = stringResource(R.string.emergency_video_share),
+                background = MaterialTheme.rideFitColors.brand,
+                onClick = {
+                    settleTo(0f)
+                    onShare()
+                },
             )
-        },
-        modifier = Modifier.onSizeChanged { size -> itemWidthPx = size.width.toFloat() },
-    ) {
-        VideoItem(file = file, onClick = onClick)
+            SwipeActionButton(
+                icon = Icons.Filled.Delete,
+                label = stringResource(R.string.emergency_video_delete),
+                background = MaterialTheme.rideFitColors.emergencyRed,
+                onClick = onDelete,
+            )
+        }
+
+        // Foreground card, slid left to reveal the actions.
+        Box(
+            modifier = Modifier
+                .offset { IntOffset(offsetX.roundToInt(), 0) }
+                .draggable(
+                    state = draggableState,
+                    orientation = Orientation.Horizontal,
+                    onDragStarted = { settleJob?.cancel() },
+                    onDragStopped = {
+                        settleTo(if (offsetX <= -actionsWidthPx / 2f) -actionsWidthPx else 0f)
+                    },
+                ),
+        ) {
+            VideoItem(
+                file = file,
+                onClick = { if (offsetX != 0f) settleTo(0f) else onClick() },
+            )
+        }
     }
 }
 
 @Composable
-private fun DeleteBackground(isActive: Boolean) {
-    val bgColor by animateColorAsState(
-        targetValue = if (isActive) MaterialTheme.rideFitColors.emergencyRedPressed else MaterialTheme.rideFitColors.emergencyRed,
-        label = "delete_bg",
-    )
-
-    Box(
+private fun RowScope.SwipeActionButton(
+    icon: ImageVector,
+    label: String,
+    background: Color,
+    onClick: () -> Unit,
+) {
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .clip(RoundedCornerShape(8.dp))
-            .background(bgColor),
-        contentAlignment = Alignment.CenterEnd,
+            .fillMaxHeight()
+            .width(ACTION_BUTTON_WIDTH)
+            .background(background)
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Column(
-            modifier = Modifier.padding(end = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Delete,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(32.dp),
-            )
-            Text(
-                text = stringResource(R.string.emergency_video_delete),
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = Color.White,
+            modifier = Modifier.size(30.dp),
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = Color.White,
+        )
     }
 }
 
@@ -387,7 +427,9 @@ private fun File.displayDateTime(): String =
         SimpleDateFormat("yyyy년 MM월 dd일\nHH:mm:ss", Locale.KOREAN).format(Date(lastModified()))
     }
 
-private const val SWIPE_THRESHOLD = 0.8f
+private val ACTION_BUTTON_WIDTH = 76.dp
+private val ACTIONS_WIDTH = ACTION_BUTTON_WIDTH * 2
+private const val REVEAL_ANIM_MS = 250
 private const val BYTES_PER_KB = 1024L
 private const val BYTES_PER_MB = 1024L * 1024L
 

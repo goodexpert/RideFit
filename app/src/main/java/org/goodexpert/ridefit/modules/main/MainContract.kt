@@ -44,6 +44,7 @@ interface MainContract {
         object StartEmergencyRecording : SideEffect()
         object StopEmergencyRecording : SideEffect()
         data class PlayVideo(val file: File) : SideEffect()
+        data class ShareVideo(val file: File) : SideEffect()
         object HideSettings : SideEffect()
         data class HideSettingsThenNavigate(val destination: AppScreen) : SideEffect()
     }

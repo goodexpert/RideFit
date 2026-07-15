@@ -82,6 +82,10 @@ class RideFitAnalytics(private val firebase: FirebaseAnalytics) {
     fun logEmergencyVideoPlayed() {
         firebase.logEvent("emergency_video_played") {}
     }
+
+    fun logEmergencyVideoShared() {
+        firebase.logEvent("emergency_video_shared") {}
+    }
 }
 
 private fun DriveMode.toAnalyticsParam(): String = when (this) {

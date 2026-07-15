@@ -126,6 +126,20 @@ class MainActivity : ComponentActivity() {
         runCatching { startActivity(intent) }
     }
 
+    private fun shareVideo(file: File) {
+        val uri = runCatching {
+            FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
+        }.getOrNull() ?: return
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "video/mp4"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        runCatching {
+            startActivity(Intent.createChooser(intent, getString(R.string.emergency_video_share)))
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -159,6 +173,7 @@ class MainActivity : ComponentActivity() {
                     MainContract.SideEffect.StartEmergencyRecording -> startEmergencyRecording()
                     MainContract.SideEffect.StopEmergencyRecording -> stopEmergencyRecording()
                     is MainContract.SideEffect.PlayVideo -> playVideo(effect.file)
+                    is MainContract.SideEffect.ShareVideo -> shareVideo(effect.file)
                     MainContract.SideEffect.HideSettings -> {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             mainViewModel.onSheetClosedHandler()
@@ -217,6 +232,7 @@ class MainActivity : ComponentActivity() {
                 accountViewModel.onResetDraftHandler()
             },
             onPlayVideo = mainViewModel::onPlayVideoHandler,
+            onShareVideo = mainViewModel::onShareVideoHandler,
             onAccountInfo = { mainViewModel.onShowAccountGuideHandler(bankAccount) },
             onAccountGuideRepeat = { mainViewModel.onAccountGuideRepeatHandler(bankAccount) },
             onAccountGuideConfirm = mainViewModel::onAccountGuideConfirmHandler,
@@ -336,6 +352,7 @@ private fun AppScreenContent(
     onSettingsSave: () -> Unit,
     onSettingsBack: () -> Unit,
     onPlayVideo: (File) -> Unit,
+    onShareVideo: (File) -> Unit,
     onAccountInfo: () -> Unit,
     onAccountGuideRepeat: () -> Unit,
     onAccountGuideConfirm: () -> Unit,
@@ -385,6 +402,7 @@ private fun AppScreenContent(
             AppScreen.EMERGENCY_VIDEOS -> EmergencyVideoScreen(
                 onBack = onBack,
                 onPlayVideo = onPlayVideo,
+                onShareVideo = onShareVideo,
             )
             AppScreen.ACCOUNT_GUIDE -> AccountGuideScreen(
                 bankAccount = bankAccount,

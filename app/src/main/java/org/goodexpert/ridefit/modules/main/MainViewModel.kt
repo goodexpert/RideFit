@@ -226,6 +226,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         emit(MainContract.SideEffect.PlayVideo(file))
     }
 
+    fun onShareVideoHandler(file: File) {
+        analytics.logEmergencyVideoShared()
+        emit(MainContract.SideEffect.ShareVideo(file))
+    }
+
     fun onDarkModeToggleHandler(enabled: Boolean) {
         dispatch(Actions.ToggleDarkMode(enabled))
         viewModelScope.launch { themeRepository.setDarkMode(enabled) }
