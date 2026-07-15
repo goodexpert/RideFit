@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -14,6 +16,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import org.goodexpert.ridefit.ads.AdsFeatureConfig
 
 // Google sample banner unit — always fills a test ad (works before account approval).
 private const val SAMPLE_BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
@@ -33,6 +36,10 @@ fun BannerAd(modifier: Modifier = Modifier) {
         Box(modifier.fillMaxWidth().height(50.dp))
         return
     }
+
+    // Remote Config toggle (observed) — recomposes and shows/hides live on changes.
+    val toggles by AdsFeatureConfig.toggles.collectAsState()
+    if (!toggles.banner) return
 
     val context = LocalContext.current
     AndroidView(

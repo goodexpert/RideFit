@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import org.goodexpert.ridefit.ads.AdsFeatureConfig
 import org.goodexpert.ridefit.ads.AppOpenAdManager
 
 // AdMob test device hash for the developer's device — only applied in debuggable
@@ -46,13 +47,15 @@ class AppApplication : Application(), Application.ActivityLifecycleCallbacks, De
             )
         }
 
+        AdsFeatureConfig.init(isDebuggable)
+
         MobileAds.initialize(this) {}
         appOpenAdManager = AppOpenAdManager()
         appOpenAdManager.onAdLoaded = {
-            // Cold start: the ad wasn't ready at first foreground — show it now.
-            if (pendingColdStartShow && isForeground) {
+            // Cold start: the ad wasn't ready at first foreground — try now that it's
+            // loaded (the toggle is re-checked here, after Remote Config has settled).
+            if (pendingColdStartShow && tryShowAppOpenAd()) {
                 pendingColdStartShow = false
-                currentActivity?.let { appOpenAdManager.showAdIfAvailable(it) }
             }
         }
         appOpenAdManager.loadAd(this)
@@ -62,11 +65,19 @@ class AppApplication : Application(), Application.ActivityLifecycleCallbacks, De
     /** Foreground entry (cold start after first Activity + every resume). */
     override fun onStart(owner: LifecycleOwner) {
         isForeground = true
-        val activity = currentActivity ?: return
-        // If no ad is ready yet (typical cold start), show it as soon as it loads.
-        if (!appOpenAdManager.showAdIfAvailable(activity)) {
+        AdsFeatureConfig.refreshFromRemote()
+        // If we can't show now (no ad yet, or the toggle hasn't resolved), retry on load.
+        if (!tryShowAppOpenAd()) {
             pendingColdStartShow = true
         }
+    }
+
+    /** Shows the App Open ad if foregrounded, enabled, and an ad is ready. */
+    private fun tryShowAppOpenAd(): Boolean {
+        if (!isForeground) return false
+        if (!AdsFeatureConfig.appOpenAdEnabled) return false
+        val activity = currentActivity ?: return false
+        return appOpenAdManager.showAdIfAvailable(activity)
     }
 
     override fun onStop(owner: LifecycleOwner) {
@@ -82,9 +93,9 @@ class AppApplication : Application(), Application.ActivityLifecycleCallbacks, De
         if (!appOpenAdManager.isShowingAd) currentActivity = activity
     }
 
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-    override fun onActivityPaused(activity: Activity) {}
-    override fun onActivityStopped(activity: Activity) {}
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-    override fun onActivityDestroyed(activity: Activity) {}
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
+    override fun onActivityPaused(activity: Activity) = Unit
+    override fun onActivityStopped(activity: Activity) = Unit
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+    override fun onActivityDestroyed(activity: Activity) = Unit
 }
