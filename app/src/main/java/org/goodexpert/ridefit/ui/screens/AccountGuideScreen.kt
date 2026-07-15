@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.goodexpert.ridefit.R
 import org.goodexpert.ridefit.model.BankAccount
+import org.goodexpert.ridefit.ui.components.BannerAd
 import org.goodexpert.ridefit.ui.components.InfoRow
 import org.goodexpert.ridefit.ui.components.StatusBadge
 import org.goodexpert.ridefit.ui.components.VoiceScriptCard
@@ -53,31 +54,39 @@ fun AccountGuideScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(top = 24.dp, bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .safeDrawingPadding(),
     ) {
-        AccountGuideHeader()
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(top = 24.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            AccountGuideHeader()
 
-        if (bankAccount.isConfigured) {
-            val script = stringResource(
-                R.string.script_transfer,
-                bankAccount.bankName,
-                bankAccount.holderName,
-                bankAccount.spokenAccountNumber,
-            )
-            VoiceScriptCard(
-                script = script,
-                label = stringResource(R.string.transfer_voice_label),
-            )
-            AccountInfoCard(bankAccount = bankAccount)
-            RepeatButton(onClick = onRepeat)
-            ConfirmButton(onClick = onConfirm)
-        } else {
-            NoAccountCard(onSetupAccount = onSetupAccount)
+            if (bankAccount.isConfigured) {
+                val script = stringResource(
+                    R.string.script_transfer,
+                    bankAccount.bankName,
+                    bankAccount.holderName,
+                    bankAccount.spokenAccountNumber,
+                )
+                VoiceScriptCard(
+                    script = script,
+                    label = stringResource(R.string.transfer_voice_label),
+                )
+                AccountInfoCard(bankAccount = bankAccount)
+                RepeatButton(onClick = onRepeat)
+                ConfirmButton(onClick = onConfirm)
+            } else {
+                NoAccountCard(onSetupAccount = onSetupAccount)
+            }
         }
+
+        // 하단 고정 배너 광고
+        BannerAd()
     }
 }
 

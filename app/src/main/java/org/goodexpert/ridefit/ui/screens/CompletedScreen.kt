@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.goodexpert.ridefit.R
+import org.goodexpert.ridefit.ui.components.BannerAd
 import org.goodexpert.ridefit.ui.components.StarRating
 import org.goodexpert.ridefit.ui.components.button.PrimaryButton
 import org.goodexpert.ridefit.ui.theme.RideFitTheme
@@ -47,29 +48,36 @@ fun CompletedScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(top = 28.dp, bottom = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .safeDrawingPadding(),
     ) {
-        CompletedHeader()
-        CompletedCard(rating = rating)
-        PrimaryButton(
-            title = stringResource(R.string.completed_new_ride),
-            contentDescription = stringResource(R.string.completed_new_ride),
-            onClick = onNewRide,
-            modifier = modifier,
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(top = 28.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Home,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                )
-            },
-        )
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            CompletedHeader()
+            CompletedCard(rating = rating)
+            PrimaryButton(
+                title = stringResource(R.string.completed_new_ride),
+                contentDescription = stringResource(R.string.completed_new_ride),
+                onClick = onNewRide,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Home,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                    )
+                },
+            )
+        }
+
+        // 하단 고정 배너 광고
+        BannerAd()
     }
 }
 

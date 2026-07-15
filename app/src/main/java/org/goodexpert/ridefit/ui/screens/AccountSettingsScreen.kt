@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.goodexpert.ridefit.R
 import org.goodexpert.ridefit.model.BankAccount
+import org.goodexpert.ridefit.ui.components.BannerAd
 import org.goodexpert.ridefit.ui.components.BankPickerBottomSheet
 import org.goodexpert.ridefit.ui.components.VoiceScriptCard
 import org.goodexpert.ridefit.ui.components.button.PrimaryButton
@@ -147,6 +148,9 @@ fun AccountSettingsScreen(
                 },
             )
         }
+
+        // 하단 고정 배너 광고
+        BannerAd()
     }
 
     if (showBankPicker) {

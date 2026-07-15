@@ -59,6 +59,7 @@ import org.goodexpert.ridefit.model.descRes
 import org.goodexpert.ridefit.model.hintRes
 import org.goodexpert.ridefit.model.icon
 import org.goodexpert.ridefit.model.labelRes
+import org.goodexpert.ridefit.ui.components.BannerAd
 import org.goodexpert.ridefit.ui.components.StatusBadge
 import org.goodexpert.ridefit.ui.components.button.PrimaryButton
 import org.goodexpert.ridefit.ui.components.button.SecondaryButton
@@ -82,57 +83,65 @@ fun MainScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(top = 24.dp, bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .safeDrawingPadding(),
     ) {
-        MainScreenHeader(isRiding = isRiding, onOpenSettings = onOpenSettings)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(top = 24.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            MainScreenHeader(isRiding = isRiding, onOpenSettings = onOpenSettings)
 
-        if (isRiding) {
-            DriveModeHintCard(mode = selectedMode ?: DriveMode.QUIET)
-            CompleteButton(onClick = onComplete)
-        } else {
+            if (isRiding) {
+                DriveModeHintCard(mode = selectedMode ?: DriveMode.QUIET)
+                CompleteButton(onClick = onComplete)
+            } else {
+                PrimaryButton(
+                    title = stringResource(R.string.start_guide_label),
+                    subtitle = stringResource(R.string.start_guide_hint),
+                    contentDescription = stringResource(R.string.start_guide_label),
+                    onClick = onStartGuide,
+                    containerColor = MaterialTheme.rideFitColors.brand,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                        )
+                    },
+                )
+            }
+
+            SectionLabel(textRes = R.string.section_drive_mode)
+            DriveModeGrid(
+                selectedMode = selectedMode,
+                onModeChange = onModeChange,
+            )
             PrimaryButton(
-                title = stringResource(R.string.start_guide_label),
-                subtitle = stringResource(R.string.start_guide_hint),
-                contentDescription = stringResource(R.string.start_guide_label),
-                onClick = onStartGuide,
+                title = stringResource(R.string.main_account_info),
+                contentDescription = stringResource(R.string.main_account_info),
+                onClick = onAccountInfo,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 containerColor = MaterialTheme.rideFitColors.brand,
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Filled.PlayArrow,
+                        imageVector = Icons.Filled.AccountBalance,
                         contentDescription = null,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(24.dp),
                     )
                 },
             )
+            EmergencyButton(
+                isRecording = isRecording,
+                onLongClick = onEmergency,
+            )
         }
 
-        SectionLabel(textRes = R.string.section_drive_mode)
-        DriveModeGrid(
-            selectedMode = selectedMode,
-            onModeChange = onModeChange,
-        )
-        PrimaryButton(
-            title = stringResource(R.string.main_account_info),
-            contentDescription = stringResource(R.string.main_account_info),
-            onClick = onAccountInfo,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            containerColor = MaterialTheme.rideFitColors.brand,
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.AccountBalance,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                )
-            },
-        )
-        EmergencyButton(
-            isRecording = isRecording,
-            onLongClick = onEmergency,
-        )
+        // 하단 고정 배너 광고
+        BannerAd()
     }
 }
 

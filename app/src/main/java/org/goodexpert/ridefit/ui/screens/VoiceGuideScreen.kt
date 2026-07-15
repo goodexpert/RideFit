@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.goodexpert.ridefit.R
 import org.goodexpert.ridefit.model.DriveMode
+import org.goodexpert.ridefit.ui.components.BannerAd
 import org.goodexpert.ridefit.ui.components.StatusBadge
 import org.goodexpert.ridefit.ui.components.VoiceScriptCard
 import org.goodexpert.ridefit.ui.components.VoiceWave
@@ -49,28 +50,36 @@ fun VoiceGuideScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .safeDrawingPadding(),
     ) {
-        StatusBadge(text = stringResource(selectedMode.labelRes()))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            StatusBadge(text = stringResource(selectedMode.labelRes()))
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        VoiceGuideWaveSection()
+            VoiceGuideWaveSection()
 
-        VoiceScriptCard(
-            script = stringResource(R.string.script_intro),
-            label = stringResource(R.string.intro_badge),
-            isPlaying = isPlaying,
-        )
+            VoiceScriptCard(
+                script = stringResource(R.string.script_intro),
+                label = stringResource(R.string.intro_badge),
+                isPlaying = isPlaying,
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        CancelButton(onClick = onCancel)
+            CancelButton(onClick = onCancel)
 
-        SkipButton(onClick = onSkip)
+            SkipButton(onClick = onSkip)
+        }
+
+        // 하단 고정 배너 광고
+        BannerAd()
     }
 }
 

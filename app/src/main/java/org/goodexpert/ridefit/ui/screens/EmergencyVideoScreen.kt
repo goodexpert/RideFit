@@ -69,6 +69,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.goodexpert.ridefit.R
+import org.goodexpert.ridefit.ui.components.BannerAd
 import org.goodexpert.ridefit.ui.theme.RideFitTheme
 import org.goodexpert.ridefit.ui.theme.rideFitColors
 import java.io.File
@@ -129,6 +130,9 @@ fun EmergencyVideoScreen(
                 }
             }
         }
+
+        // 하단 고정 배너 광고
+        BannerAd()
     }
 }
 
