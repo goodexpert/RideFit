@@ -22,15 +22,7 @@ class CompletedScreenTest {
         rule.setContent {
             RideFitTheme { CompletedScreen() }
         }
-        rule.onNodeWithText("운행 완료").assertIsDisplayed()
-    }
-
-    @Test
-    fun subtitle_isDisplayed() {
-        rule.setContent {
-            RideFitTheme { CompletedScreen() }
-        }
-        rule.onNodeWithText("수고하셨습니다").assertIsDisplayed()
+        rule.onNodeWithText("도착 안내").assertIsDisplayed()
     }
 
     @Test
@@ -38,7 +30,7 @@ class CompletedScreenTest {
         rule.setContent {
             RideFitTheme { CompletedScreen() }
         }
-        rule.onNodeWithText("음성 안내 완료").assertIsDisplayed()
+        rule.onNodeWithText("목적지 도착안내").assertIsDisplayed()
     }
 
     @Test

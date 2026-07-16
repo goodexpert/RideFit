@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -300,12 +298,10 @@ private fun DriveModeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isDark = MaterialTheme.rideFitColors.isDark
-
     val containerColor = if (isSelected) MaterialTheme.rideFitColors.subtleContainer else MaterialTheme.rideFitColors.cardContainer
     val borderColor = if (isSelected) MaterialTheme.rideFitColors.brand else MaterialTheme.rideFitColors.cardBorder
-    val iconColor = MaterialTheme.rideFitColors.brandAccent
-    val labelColor = if (isSelected && !isDark) MaterialTheme.rideFitColors.brand else MaterialTheme.colorScheme.onSurface
+    val accentColor = MaterialTheme.rideFitColors.brandAccent
+    val labelColor = if (isSelected) accentColor else MaterialTheme.colorScheme.onSurface
 
     Card(
         onClick = onClick,
@@ -315,25 +311,35 @@ private fun DriveModeCard(
         border = BorderStroke(if (isSelected) 2.dp else 1.5.dp, borderColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Row(
+            modifier = Modifier
+                .heightIn(96.dp)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.Top,
+        ) {
             Icon(
                 imageVector = mode.icon(),
                 contentDescription = null,
-                tint = iconColor,
+                tint = accentColor,
                 modifier = Modifier.size(24.dp),
             )
-            Spacer(Modifier.height(7.dp))
-            Text(
-                text = stringResource(mode.labelRes()),
-                style = MaterialTheme.typography.titleMedium,
-                color = labelColor,
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = stringResource(mode.descRes()),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            )
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = stringResource(mode.labelRes()),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = labelColor,
+                )
+
+                Text(
+                    text = stringResource(mode.descRes()),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                )
+            }
         }
     }
 }

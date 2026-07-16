@@ -296,6 +296,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         Actions.CancelGuideConfirm -> state.copy(
             showCancelGuideDialog = false,
             currentScreen = AppScreen.STANDBY,
+            isRiding = false,
+            selectedMode = null,
         )
         Actions.ShowExitDialog -> state.copy(showExitDialog = true)
         Actions.DismissExitDialog -> state.copy(showExitDialog = false)

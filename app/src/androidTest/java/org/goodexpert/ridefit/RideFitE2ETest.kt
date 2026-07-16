@@ -32,20 +32,20 @@ class RideFitE2ETest {
 
     // ── Navigation helpers ────────────────────────────────────────────────────
 
-    private fun selectMode(modeLabel: String = "조용히") =
+    private fun selectMode(modeLabel: String = "내비기준운행") =
         rule.onNodeWithText(modeLabel).performClick()
 
     private fun skipVoiceGuide() =
         rule.onNodeWithText("건너뛰기").performClick()
 
-    private fun goToRide(modeLabel: String = "조용히") {
+    private fun goToRide(modeLabel: String = "내비기준운행") {
         selectMode(modeLabel)
         skipVoiceGuide()
     }
 
-    private fun goToCompleted(modeLabel: String = "조용히") {
+    private fun goToCompleted(modeLabel: String = "내비기준운행") {
         goToRide(modeLabel)
-        rule.onNodeWithText("운행 완료").performClick()
+        rule.onNodeWithText("도착 안내").performClick()
     }
 
     private fun goToSettings() {
@@ -62,7 +62,7 @@ class RideFitE2ETest {
 
     @Test
     fun scenario_selectMode_showsVoiceGuideScreen() {
-        selectMode("조용히")
+        selectMode("내비기준운행")
 
         rule.onNodeWithText("건너뛰기").assertIsDisplayed()
         rule.onNodeWithText("탑승 안내 중...").assertIsDisplayed()
@@ -88,15 +88,15 @@ class RideFitE2ETest {
     fun scenario_voiceGuide_skip_navigatesToRideScreen() {
         goToRide()
 
-        rule.onNodeWithText("운행 완료").assertIsDisplayed()
+        rule.onNodeWithText("도착 안내").assertIsDisplayed()
     }
 
     @Test
     fun scenario_rideComplete_navigatesToCompletedScreen() {
         goToCompleted()
 
-        rule.onNodeWithText("운행 완료").assertIsDisplayed()
-        rule.onNodeWithText("수고하셨습니다").assertIsDisplayed()
+        rule.onNodeWithText("도착 안내").assertIsDisplayed()
+        rule.onNodeWithText("목적지 도착안내").assertIsDisplayed()
     }
 
     @Test
@@ -113,7 +113,7 @@ class RideFitE2ETest {
         rule.onNodeWithText("준비 완료").assertIsDisplayed()
 
         goToCompleted()
-        rule.onNodeWithText("수고하셨습니다").assertIsDisplayed()
+        rule.onNodeWithText("목적지 도착안내").assertIsDisplayed()
 
         rule.onNodeWithText("홈으로 가기").performClick()
         rule.onNodeWithText("준비 완료").assertIsDisplayed()
@@ -134,7 +134,7 @@ class RideFitE2ETest {
         rule.onNodeWithText("탑승 안내 시작").performClick()
         skipVoiceGuide()
 
-        rule.onNodeWithText("운행 완료").assertIsDisplayed()
+        rule.onNodeWithText("도착 안내").assertIsDisplayed()
     }
 
     // ── Back button flow ──────────────────────────────────────────────────────
@@ -159,7 +159,7 @@ class RideFitE2ETest {
     @Test
     fun scenario_backOnRide_returnsToStandby() {
         goToRide()
-        rule.onNodeWithText("운행 완료").assertIsDisplayed()
+        rule.onNodeWithText("도착 안내").assertIsDisplayed()
 
         pressBack()
 
@@ -170,7 +170,7 @@ class RideFitE2ETest {
 
     @Test
     fun scenario_backOnVoiceGuide_whilePlaying_showsCancelDialog() {
-        selectMode("조용히")
+        selectMode("내비기준운행")
         rule.onNodeWithText("건너뛰기").assertIsDisplayed()
 
         pressBack()
@@ -181,7 +181,7 @@ class RideFitE2ETest {
 
     @Test
     fun scenario_cancelDialog_confirm_stopsAndReturnsToMain() {
-        selectMode("조용히")
+        selectMode("내비기준운행")
         pressBack()
         rule.onNodeWithText("중단").performClick()
 
@@ -191,7 +191,7 @@ class RideFitE2ETest {
 
     @Test
     fun scenario_cancelDialog_continue_dismissesAndStaysOnVoiceGuide() {
-        selectMode("조용히")
+        selectMode("내비기준운행")
         pressBack()
         rule.onNodeWithText("계속").performClick()
 
@@ -213,7 +213,7 @@ class RideFitE2ETest {
 
     @Test
     fun scenario_cancelButton_onVoiceGuide_showsCancelDialog() {
-        selectMode("조용히")
+        selectMode("내비기준운행")
         rule.onNodeWithText("운행 취소").assertIsDisplayed()
 
         rule.onNodeWithText("운행 취소").performClick()
@@ -224,7 +224,7 @@ class RideFitE2ETest {
 
     @Test
     fun scenario_cancelButton_confirm_returnsToStandby_notRiding() {
-        selectMode("조용히")
+        selectMode("내비기준운행")
         rule.onNodeWithText("운행 취소").performClick()
         rule.onNodeWithText("중단").performClick()
 
@@ -235,7 +235,7 @@ class RideFitE2ETest {
 
     @Test
     fun scenario_cancelButton_continue_staysOnVoiceGuide() {
-        selectMode("조용히")
+        selectMode("내비기준운행")
         rule.onNodeWithText("운행 취소").performClick()
         rule.onNodeWithText("계속").performClick()
 

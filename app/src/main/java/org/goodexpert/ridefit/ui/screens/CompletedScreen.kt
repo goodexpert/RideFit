@@ -54,10 +54,10 @@ fun CompletedScreen(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-                .padding(top = 28.dp, bottom = 24.dp),
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(32.dp),
         ) {
             CompletedHeader()
             CompletedCard(rating = rating)
@@ -110,12 +110,6 @@ private fun CompletedHeader(modifier: Modifier = Modifier) {
             color = accentColor,
             textAlign = TextAlign.Center,
         )
-        Text(
-            text = stringResource(R.string.completed_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
-            textAlign = TextAlign.Center,
-        )
     }
 }
 
@@ -142,7 +136,7 @@ private fun CompletedCard(
         ) {
             Text(
                 text = stringResource(R.string.completed_voice_label),
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                 color = labelColor,
                 modifier = Modifier
                     .fillMaxWidth()

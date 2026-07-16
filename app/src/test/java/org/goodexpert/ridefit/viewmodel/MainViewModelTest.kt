@@ -272,6 +272,8 @@ class MainViewModelTest {
 
         assertEquals(AppScreen.STANDBY, state.currentScreen)
         assertFalse(state.isRiding)
+        // Cancelling clears the in-progress mode selection so STANDBY is a clean pre-ride state.
+        assertNull(state.selectedMode)
         assertFalse(state.showCancelGuideDialog)
     }
 

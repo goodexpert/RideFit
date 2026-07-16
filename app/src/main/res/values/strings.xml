@@ -23,10 +23,10 @@
     <string name="mode_fast_desc">시간이 촉박할 때</string>
     <string name="mode_safe">안전 운행</string>
     <string name="mode_safe_desc">부드러운 승차감</string>
-    <string name="mode_quiet">조용히</string>
-    <string name="mode_quiet_desc">말 걸지 않음</string>
-    <string name="mode_media">미디어</string>
-    <string name="mode_media_desc">라디오 · 음악</string>
+    <string name="mode_quiet">내비기준운행</string>
+    <string name="mode_quiet_desc">내비게이션 기준\n조용한 이동</string>
+    <string name="mode_media">미디어 청취</string>
+    <string name="mode_media_desc">라디오 · 뉴스 · 음악</string>
 
     <!-- Emergency -->
     <string name="emergency_title">긴급 상황</string>
@@ -62,7 +62,7 @@
     <string name="tts_welcome_fast">안녕하세요! 도착지까지 빠르게 모시겠습니다. 안전벨트 확인해 주세요.</string>
     <string name="tts_welcome_safe">안녕하세요. 안전하게 천천히 모시겠습니다. 편안한 이동 되세요.</string>
     <string name="tts_welcome_media">안녕하세요. 라디오와 음악을 들으며 편안하게 모시겠습니다. 즐거운 이동 되세요.</string>
-    <string name="tts_completed">두고 내리실 짐은 없으신가요? 오늘 이동이 만족스러우셨다면, 별점으로 응원해 주시면 감사하겠습니다.</string>
+    <string name="tts_completed">목적지에 곧 도착 예정입니다. 두고 내리는 물건(핸드폰, 지갑 등)이 없도록 확인해 주세요. 오늘 운행이 만족스러우셨다면 별점으로 응원해 주시면 감사하겠습니다.</string>
     <string name="tts_transfer">계좌번호를 불러드릴게요. %1$s, %2$s, %3$s 입니다. 이체 완료되시면 말씀해 주세요.</string>
     <string name="tts_transfer_intro">계좌번호를 불러드릴게요. %1$s, %2$s,</string>
     <string name="tts_transfer_outro">입니다. 이체 완료되시면 말씀해 주세요.</string>
@@ -120,9 +120,9 @@
     <string name="ride_title">운행 중</string>
     <string name="ride_start_guide">탑승 안내 시작</string>
     <string name="ride_start_guide_hint">안내 메시지를 다시 재생합니다</string>
-    <string name="ride_complete">운행 완료</string>
+    <string name="ride_complete">도착 안내</string>
     <string name="ride_hint_section">운행 참고</string>
-    <string name="ride_hint_quiet">말을 걸지 않습니다. 승객이 먼저 말을 걸어 올 때만 응대하세요.</string>
+    <string name="ride_hint_quiet">내비게이션 기준으로 조용히 이동합니다.</string>
     <string name="ride_hint_fast">최적 경로로 빠르게 모십니다. 불필요한 정차와 우회를 줄여 주세요.</string>
     <string name="ride_hint_safe">부드러운 출발과 정지를 유지해 주세요. 급가속·급제동을 자제하세요.</string>
     <string name="ride_hint_media">라디오·음악이 재생됩니다. 승객 취향에 맞게 음량을 조율해 주세요.</string>
@@ -146,9 +146,8 @@
     <string name="discard_changes_dialog_cancel">계속 수정</string>
 
     <!-- Completed screen -->
-    <string name="completed_title">운행 완료</string>
-    <string name="completed_subtitle">수고하셨습니다</string>
-    <string name="completed_voice_label">음성 안내 완료</string>
+    <string name="completed_title">도착 안내</string>
+    <string name="completed_voice_label">목적지 도착안내</string>
     <string name="completed_new_ride">홈으로 가기</string>
-    <string name="script_completed">두고 내리실 짐은 없으신가요?\n오늘 이동이 만족스러우셨다면\n별점으로 응원해 주시면 감사하겠습니다.</string>
+    <string name="script_completed">목적지에 곧 도착 예정입니다.\n두고 내리는 물건(핸드폰, 지갑 등)이\n없도록 확인해 주세요.\n\n오늘 운행이 만족스러우셨다면\n별점으로 응원해 주시면 감사하겠습니다.</string>
 </resources>

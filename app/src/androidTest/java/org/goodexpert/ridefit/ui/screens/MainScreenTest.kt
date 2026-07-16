@@ -52,7 +52,7 @@ class MainScreenTest {
         rule.setContent {
             RideFitTheme { MainScreen(isRiding = false) }
         }
-        rule.onNodeWithText("운행 완료").assertIsNotDisplayed()
+        rule.onNodeWithText("도착 안내").assertIsNotDisplayed()
     }
 
     @Test
@@ -60,10 +60,10 @@ class MainScreenTest {
         rule.setContent {
             RideFitTheme { MainScreen() }
         }
-        rule.onNodeWithText("조용히").assertIsDisplayed()
+        rule.onNodeWithText("내비기준운행").assertIsDisplayed()
         rule.onNodeWithText("빠른 이동").assertIsDisplayed()
         rule.onNodeWithText("안전 운행").assertIsDisplayed()
-        rule.onNodeWithText("미디어").assertIsDisplayed()
+        rule.onNodeWithText("미디어 청취").assertIsDisplayed()
     }
 
     @Test
@@ -95,10 +95,10 @@ class MainScreenTest {
         rule.setContent {
             RideFitTheme { MainScreen(selectedMode = null) }
         }
-        rule.onNodeWithText("조용히").assertIsDisplayed()
+        rule.onNodeWithText("내비기준운행").assertIsDisplayed()
         rule.onNodeWithText("빠른 이동").assertIsDisplayed()
         rule.onNodeWithText("안전 운행").assertIsDisplayed()
-        rule.onNodeWithText("미디어").assertIsDisplayed()
+        rule.onNodeWithText("미디어 청취").assertIsDisplayed()
     }
 
     // ── Riding state (isRiding = true) ────────────────────────────────────────
@@ -126,7 +126,7 @@ class MainScreenTest {
         rule.setContent {
             RideFitTheme { MainScreen(isRiding = true) }
         }
-        rule.onNodeWithText("운행 완료").assertIsDisplayed()
+        rule.onNodeWithText("도착 안내").assertIsDisplayed()
     }
 
     @Test
@@ -142,8 +142,8 @@ class MainScreenTest {
         rule.setContent {
             RideFitTheme { MainScreen(isRiding = true) }
         }
-        // "조용히" appears in both DriveModeHintCard (default) and the grid card
-        rule.onAllNodesWithText("조용히")[0].assertIsDisplayed()
+        // "내비기준운행" appears in both DriveModeHintCard (default) and the grid card
+        rule.onAllNodesWithText("내비기준운행")[0].assertIsDisplayed()
         rule.onNodeWithText("빠른 이동").assertIsDisplayed()
     }
 
@@ -155,7 +155,7 @@ class MainScreenTest {
                 MainScreen(isRiding = true, onComplete = { called = true })
             }
         }
-        rule.onNodeWithText("운행 완료").performClick()
+        rule.onNodeWithText("도착 안내").performClick()
         assertTrue(called)
     }
 
@@ -165,7 +165,7 @@ class MainScreenTest {
             RideFitTheme { MainScreen(isRiding = true, selectedMode = DriveMode.QUIET) }
         }
         rule.onNodeWithText(
-            "말을 걸지 않습니다. 승객이 먼저 말을 걸어 올 때만 응대하세요.",
+            "내비게이션 기준으로 조용히 이동합니다.",
         ).assertIsDisplayed()
     }
 
