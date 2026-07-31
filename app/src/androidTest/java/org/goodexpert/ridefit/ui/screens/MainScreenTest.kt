@@ -130,6 +130,34 @@ class MainScreenTest {
     }
 
     @Test
+    fun riding_cancelRideButton_isDisplayed() {
+        rule.setContent {
+            RideFitTheme { MainScreen(isRiding = true) }
+        }
+        rule.onNodeWithText("운행 취소").assertIsDisplayed()
+    }
+
+    @Test
+    fun riding_cancelRideButton_isNotDisplayed_inStandby() {
+        rule.setContent {
+            RideFitTheme { MainScreen(isRiding = false) }
+        }
+        rule.onNodeWithText("운행 취소").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun riding_clickingCancelRide_invokesCallback() {
+        var called = false
+        rule.setContent {
+            RideFitTheme {
+                MainScreen(isRiding = true, onCancelRide = { called = true })
+            }
+        }
+        rule.onNodeWithText("운행 취소").performClick()
+        assertTrue(called)
+    }
+
+    @Test
     fun riding_startGuideButton_isNotDisplayed() {
         rule.setContent {
             RideFitTheme { MainScreen(isRiding = true) }

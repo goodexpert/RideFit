@@ -369,6 +369,7 @@ private fun AppScreenContent(
                 onOpenSettings = onOpenSettings,
                 onStartGuide = onStartGuide,
                 onComplete = onRideComplete,
+                onCancelRide = onNewRide,
                 onAccountInfo = onAccountInfo,
                 onEmergency = onEmergency,
             )

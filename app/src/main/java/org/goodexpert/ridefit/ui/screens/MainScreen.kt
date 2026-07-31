@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
@@ -74,6 +75,7 @@ fun MainScreen(
     onOpenSettings: () -> Unit = {},
     onStartGuide: () -> Unit = {},
     onComplete: () -> Unit = {},
+    onCancelRide: () -> Unit = {},
     onAccountInfo: () -> Unit = {},
     onEmergency: () -> Unit = {},
 ) {
@@ -95,7 +97,19 @@ fun MainScreen(
 
             if (isRiding) {
                 DriveModeHintCard(mode = selectedMode ?: DriveMode.QUIET)
-                CompleteButton(onClick = onComplete)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    CompleteButton(
+                        onClick = onComplete,
+                        modifier = Modifier.weight(1f),
+                    )
+                    CancelRideButton(
+                        onClick = onCancelRide,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             } else {
                 PrimaryButton(
                     title = stringResource(R.string.start_guide_label),
@@ -181,16 +195,41 @@ private fun MainScreenHeader(isRiding: Boolean, onOpenSettings: () -> Unit) {
 }
 
 @Composable
-private fun CompleteButton(onClick: () -> Unit) {
+private fun CompleteButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     SecondaryButton(
         title = stringResource(R.string.ride_complete),
         contentDescription = stringResource(R.string.ride_complete),
         onClick = onClick,
+        modifier = modifier,
         containerColor = MaterialTheme.rideFitColors.confirmContainer,
         contentColor = MaterialTheme.rideFitColors.onConfirmContainer,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+        },
+    )
+}
+
+/**
+ * Cancels the ride straight to standby — no arrival guidance / completion screen.
+ * Mirrors the "운행 취소" button on [VoiceGuideScreen] (same label, icon, and tonal style).
+ */
+@Composable
+private fun CancelRideButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    SecondaryButton(
+        title = stringResource(R.string.intro_cancel),
+        contentDescription = stringResource(R.string.intro_cancel),
+        onClick = onClick,
+        modifier = modifier,
+        containerColor = MaterialTheme.rideFitColors.subtleContainer,
+        contentColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f),
+        border = BorderStroke(1.dp, MaterialTheme.rideFitColors.cardBorder),
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Close,
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
             )
